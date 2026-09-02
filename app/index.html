@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Redirection immédiate vers la fiche Google Play -->
+  <meta http-equiv="refresh" content="0;url=https://play.google.com/store/apps/details?id=com.cyriltosi.objetspretes">
+
+  <title>Akikoi — suivez vos prêts d'objets</title>
+  <meta name="description" content="Akikoi — suivez vos prêts d'objets : qui a quoi, depuis quand, rappels au bon moment. Téléchargez l'application sur Google Play.">
+  <link rel="canonical" href="https://akikoi.fr/app/">
+  <meta name="robots" content="noindex, follow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Akikoi">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Akikoi — suivez vos prêts d'objets">
+  <meta property="og:description" content="Qui a quoi, depuis quand, rappels au bon moment. Vos données restent sur votre téléphone.">
+  <meta property="og:url" content="https://akikoi.fr/app/">
+  <meta property="og:image" content="https://akikoi.fr/assets/logo.png">
+  <meta name="twitter:card" content="summary">
+
+  <link rel="icon" href="../assets/logo.png">
+  <link rel="apple-touch-icon" href="../assets/logo.png">
+  <link rel="stylesheet" href="../styles.css">
+
+  <!--
+    TODO (app iOS) : quand la version iOS existera, cette page fera la détection
+    de plateforme — iOS -> App Store, Android -> Google Play, desktop/autres ->
+    le contenu de repli ci-dessous avec les deux boutons. Remplacer alors la
+    balise <meta http-equiv="refresh"> (inconditionnelle) par une redirection
+    uniquement en JavaScript, basée sur navigator.userAgent / userAgentData.
+  -->
+  <script>
+    location.replace("https://play.google.com/store/apps/details?id=com.cyriltosi.objetspretes");
+  </script>
+</head>
+<body>
+  <!-- Contenu de repli : visible si la redirection ne part pas, et pour les robots -->
+  <main class="redirect">
+    <div class="container">
+      <img class="redirect-logo" src="../assets/logo.png" alt="Akikoi" width="88" height="88">
+      <h1>Akikoi — Prêtez sans oublier</h1>
+      <p>Qui a quoi, depuis quand, rappels au bon moment. Vos données restent sur votre téléphone.</p>
+      <a class="cta cta-live" href="https://play.google.com/store/apps/details?id=com.cyriltosi.objetspretes">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3.5v17a1 1 0 0 0 1.5.87l14.5-8.5a1 1 0 0 0 0-1.74L4.5 2.63A1 1 0 0 0 3 3.5Z"/></svg>
+        Télécharger sur Google Play
+      </a>
+      <p class="redirect-note">Redirection en cours vers Google Play… · <a href="../">Retour à l'accueil</a></p>
+    </div>
+  </main>
+</body>
+</html>

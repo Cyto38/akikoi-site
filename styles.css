@@ -131,3 +131,24 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
   .hero h1 { font-size: 44px; }
   .steps { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* CTA actif (page /app) */
+.cta-live {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.cta-live:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
+
+/* Page de redirection /app */
+.redirect { display: flex; align-items: center; min-height: 100vh; padding: 40px 0; text-align: center; }
+.redirect .redirect-logo { width: 88px; height: 88px; border-radius: 22px; display: block; margin: 0 auto 20px; }
+.redirect h1 { font-size: 28px; line-height: 1.2; margin: 0 0 12px; }
+.redirect p { font-size: 17px; color: var(--muted); max-width: 46ch; margin: 0 auto 24px; }
+.redirect .redirect-note { font-size: 13px; margin: 20px auto 0; }
+.redirect .redirect-note a { color: var(--muted); }
+
+@media (min-width: 640px) {
+  .redirect h1 { font-size: 34px; }
+}
