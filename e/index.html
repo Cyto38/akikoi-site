@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!--
+  Page « lien d'emprunt » — https://akikoi.fr/e#<payload>
+
+  FORMAT DU LIEN (l'app Akikoi l'encode à l'identique)
+  ----------------------------------------------------
+  payload = base64url( UTF-8( JSON compact ) )
+    - base64url : alphabet RFC 4648 §5 (« - » et « _ » au lieu de « + » et « / »),
+      sans padding « = » (le décodeur accepte aussi le padding).
+    - JSON compact, versionné, clés courtes :
+        { "v":1, "o":"Perceuse", "d":"2026-09-24", "p":"Marc", "t":"2026-09-10" }
+
+      v  version du format            obligatoire, entier, = 1
+      o  objet prêté                  obligatoire, chaîne non vide
+      d  date de retour convenue      optionnel, « AAAA-MM-JJ »
+      p  prénom du prêteur            optionnel, chaîne
+      t  date du prêt                 optionnel, « AAAA-MM-JJ »
+
+    - Les clés inconnues sont ignorées (ajouts compatibles sans changer v).
+    - v inconnu, base64/UTF-8/JSON invalide, o absent ou vide, d mal formée
+      → état « lien illisible ». Un t mal formé est simplement ignoré.
+    - Les dates sont des dates civiles (sans heure ni fuseau) : l'écart de jours
+      est calculé au jour près dans le fuseau du téléphone qui ouvre la page.
+
+  Le fragment (#…) n'est jamais envoyé au serveur : tout est lu côté client via
+  location.hash. Aucun tracking, aucun script tiers.
+-->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Un objet t'a été prêté · Akikoi</title>
+  <meta name="description" content="Retrouve le résumé de ton emprunt : l'objet, qui te l'a prêté et la date de retour convenue.">
+  <meta name="robots" content="noindex">
+
+  <!-- OG générique : les messageries ne reçoivent pas le fragment, donc aucune donnée du prêt ici -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Akikoi">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Un objet t'a été prêté · Akikoi">
+  <meta property="og:description" content="Ouvre le lien pour voir l'objet, qui te l'a prêté et la date de retour convenue.">
+  <meta property="og:url" content="https://akikoi.fr/e/">
+  <meta property="og:image" content="https://akikoi.fr/assets/logo.png">
+  <meta name="twitter:card" content="summary">
+
+  <link rel="icon" href="/assets/logo.png">
+  <link rel="apple-touch-icon" href="/assets/logo.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">
+        <img src="/assets/logo.png" alt="" width="36" height="36">
+        Akikoi
+      </a>
+    </div>
+  </header>
+
+  <main class="loan">
+    <div class="container">
+
+      <!-- État : prêt lisible -->
+      <section id="state-loan" class="loan-state" hidden>
+        <div class="loan-card">
+          <p class="loan-kicker">Ton emprunt</p>
+          <h1 id="loan-object" class="loan-object"></h1>
+          <p id="loan-lender" class="loan-lender"></p>
+          <p id="loan-badge" class="loan-badge"></p>
+          <dl class="loan-dates">
+            <div id="loan-due-row">
+              <dt>Retour prévu</dt>
+              <dd id="loan-due"></dd>
+            </div>
+            <div id="loan-since-row" hidden>
+              <dt>Prêté le</dt>
+              <dd id="loan-since"></dd>
+            </div>
+          </dl>
+          <p class="loan-honest">Cette page affiche le prêt tel qu'il a été partagé — elle ne sait pas s'il a été rendu.</p>
+        </div>
+
+        <div id="loan-cta" class="loan-cta">
+          <a class="cta cta-live loan-cta-btn" href="https://akikoi.fr/app">Installe Akikoi : retrouve ton emprunt, et sois prévenu avant la date convenue</a>
+          <button type="button" id="loan-keep" class="loan-keep">ou garde simplement cette page</button>
+        </div>
+        <p id="loan-kept" class="loan-kept" hidden>C'est noté. Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris pour la retrouver.</p>
+      </section>
+
+      <!-- État : lien illisible (payload présent mais non décodable) -->
+      <section id="state-invalid" class="loan-state loan-empty" hidden>
+        <h1>Ce lien est illisible</h1>
+        <p>Il a peut-être été coupé ou modifié en route. Demande à la personne qui t'a prêté l'objet de te le renvoyer.</p>
+        <a href="/">Découvrir Akikoi</a>
+      </section>
+
+      <!-- État : fragment absent (état par défaut sans JavaScript) -->
+      <section id="state-empty" class="loan-state loan-empty">
+        <h1>Ce lien est incomplet</h1>
+        <p>Il manque le résumé du prêt à la fin de l'adresse. Demande à la personne qui t'a prêté l'objet de te renvoyer le lien en entier.</p>
+        <a href="/">Découvrir Akikoi</a>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    "use strict";
+
+    var ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+    var MAX_LEN = 120;
+
+    function $(id) { return document.getElementById(id); }
+
+    // « AAAA-MM-JJ » -> { y, m, d } si la date existe réellement, sinon null
+    function parseIsoDate(s) {
+      if (typeof s !== "string") return null;
+      var m = ISO_DATE.exec(s);
+      if (!m) return null;
+      var y = +m[1], mo = +m[2], d = +m[3];
+      var probe = new Date(Date.UTC(y, mo - 1, d));
+      if (probe.getUTCFullYear() !== y || probe.getUTCMonth() !== mo - 1 || probe.getUTCDate() !== d) return null;
+      return { y: y, m: mo, d: d };
+    }
+
+    function cleanText(s) {
+      if (typeof s !== "string") return "";
+      s = s.replace(/\s+/g, " ").trim();
+      return s.length > MAX_LEN ? s.slice(0, MAX_LEN - 1) + "…" : s;
+    }
+
+    function base64urlToUtf8(b64) {
+      var s = b64.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+      if (!/^[A-Za-z0-9+\/]*$/.test(s) || s.length % 4 === 1) throw new Error("base64");
+      while (s.length % 4) s += "=";
+      var bin = atob(s);
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    }
+
+    // Renvoie { object, due, lender, since } ou null si illisible
+    function decodePayload(payload) {
+      var data;
+      try {
+        data = JSON.parse(base64urlToUtf8(payload));
+      } catch (e) {
+        return null;
+      }
+      if (!data || typeof data !== "object" || data.v !== 1) return null;
+
+      var object = cleanText(data.o);
+      if (!object) return null;
+
+      var due = null;
+      if (data.d != null && data.d !== "") {
+        due = parseIsoDate(data.d);
+        if (!due) return null;
+      }
+
+      return {
+        object: object,
+        due: due,
+        lender: cleanText(data.p),
+        since: parseIsoDate(data.t)
+      };
+    }
+
+    // Écart en jours civils entre aujourd'hui (heure locale) et la date donnée
+    function daysFromToday(date) {
+      var now = new Date();
+      var today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+      var target = Date.UTC(date.y, date.m - 1, date.d);
+      return Math.round((target - today) / 86400000);
+    }
+
+    function formatDate(date, withWeekday) {
+      var opts = { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" };
+      if (withWeekday) opts.weekday = "long";
+      return new Date(Date.UTC(date.y, date.m - 1, date.d)).toLocaleDateString("fr-FR", opts);
+    }
+
+    function badgeFor(due) {
+      if (!due) return { text: "Retour libre", tone: "free" };
+      var n = daysFromToday(due);
+      if (n > 1) return { text: "À rendre dans " + n + " j", tone: "ok" };
+      if (n === 1) return { text: "À rendre demain", tone: "soon" };
+      if (n === 0) return { text: "À rendre aujourd'hui", tone: "soon" };
+      return { text: "En retard de " + (-n) + " j", tone: "late" };
+    }
+
+    function show(id) {
+      ["state-loan", "state-invalid", "state-empty"].forEach(function (s) {
+        $(s).hidden = s !== id;
+      });
+    }
+
+    function render() {
+      var payload = location.hash.replace(/^#/, "");
+      if (!payload) {
+        document.title = "Ce lien est incomplet · Akikoi";
+        show("state-empty");
+        return;
+      }
+
+      var loan = decodePayload(payload);
+      if (!loan) {
+        document.title = "Lien illisible · Akikoi";
+        show("state-invalid");
+        return;
+      }
+
+      // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
+      $("loan-object").textContent = loan.object;
+      $("loan-lender").textContent = loan.lender ? "prêté par " + loan.lender : "prêté";
+
+      var badge = badgeFor(loan.due);
+      var badgeEl = $("loan-badge");
+      badgeEl.textContent = badge.text;
+      badgeEl.className = "loan-badge loan-badge-" + badge.tone;
+
+      $("loan-due").textContent = loan.due ? formatDate(loan.due, true) : "pas de date convenue";
+
+      $("loan-since-row").hidden = !loan.since;
+      $("loan-since").textContent = loan.since ? formatDate(loan.since, false) : "";
+
+      document.title = loan.object + " · Akikoi";
+      show("state-loan");
+    }
+
+    $("loan-keep").addEventListener("click", function () {
+      $("loan-cta").hidden = true;
+      $("loan-kept").hidden = false;
+    });
+
+    window.addEventListener("hashchange", render);
+    render();
+  })();
+  </script>
+</body>
+</html>
