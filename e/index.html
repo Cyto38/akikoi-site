@@ -81,10 +81,10 @@
         </div>
 
         <div id="loan-cta" class="loan-cta">
-          <a class="cta cta-live loan-cta-btn" href="https://akikoi.fr/app">Installe Akikoi : retrouve ton emprunt, et sois prévenu avant la date convenue</a>
+          <a id="loan-install" class="cta cta-live loan-cta-btn" href="https://akikoi.fr/app">Installe Akikoi : retrouve ton emprunt, et sois prévenu avant la date convenue</a>
           <button type="button" id="loan-keep" class="loan-keep">ou garde simplement cette page</button>
+          <p id="loan-kept" class="loan-kept" hidden>Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris.</p>
         </div>
-        <p id="loan-kept" class="loan-kept" hidden>C'est noté. Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris pour la retrouver.</p>
       </section>
 
       <!-- État : lien illisible (payload présent mais non décodable) -->
@@ -214,7 +214,13 @@
 
       // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
       $("loan-object").textContent = loan.object;
-      $("loan-lender").textContent = loan.lender ? "prêté par " + loan.lender : "prêté";
+      // « par {p} » plutôt que « prêté(e) par » : le genre de l'objet est inconnu
+      $("loan-lender").hidden = !loan.lender;
+      $("loan-lender").textContent = loan.lender ? "par " + loan.lender : "";
+
+      $("loan-install").textContent = loan.due
+        ? "Installe Akikoi : retrouve ton emprunt, et sois prévenu avant la date convenue"
+        : "Installe Akikoi : retrouve ton emprunt";
 
       var badge = badgeFor(loan.due);
       var badgeEl = $("loan-badge");
@@ -231,7 +237,7 @@
     }
 
     $("loan-keep").addEventListener("click", function () {
-      $("loan-cta").hidden = true;
+      $("loan-keep").hidden = true;
       $("loan-kept").hidden = false;
     });
 

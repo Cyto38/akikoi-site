@@ -166,10 +166,10 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 }
 .loan-kicker { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .loan-object { margin: 0; font-size: 30px; line-height: 1.15; overflow-wrap: anywhere; }
-.loan-lender { margin: 4px 0 16px; font-size: 17px; color: var(--muted); overflow-wrap: anywhere; }
+.loan-lender { margin: 4px 0 0; font-size: 17px; color: var(--muted); overflow-wrap: anywhere; }
 .loan-badge {
   display: inline-block;
-  margin: 0 0 18px;
+  margin: 14px 0 18px;
   padding: 6px 12px;
   border-radius: 999px;
   font-weight: 700;
@@ -198,7 +198,7 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
   cursor: pointer;
 }
 .loan-keep:hover { color: var(--text); }
-.loan-kept { margin: 22px 0 0; text-align: center; font-size: 15px; color: var(--muted); }
+.loan-kept { margin: 12px auto 0; max-width: 40ch; text-align: center; font-size: 15px; color: var(--muted); }
 .loan-empty { text-align: center; padding-top: 24px; }
 .loan-empty h1 { font-size: 26px; line-height: 1.2; margin: 0 0 12px; }
 .loan-empty p { color: var(--muted); margin: 0 auto 20px; max-width: 40ch; }
