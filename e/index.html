@@ -179,7 +179,7 @@
       var opts = { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" };
       if (withWeekday) opts.weekday = "long";
       var text = new Date(Date.UTC(date.y, date.m - 1, date.d)).toLocaleDateString("fr-FR", opts);
-      return date.d === 1 ? text.replace(/(^|s)1(s)/, "$11er$2") : text;
+      return date.d === 1 ? text.replace(/(^|\s)1(\s)/, function (_, before, after) { return before + "1er" + after; }) : text;
     }
 
     function badgeFor(due) {
