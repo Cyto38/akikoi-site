@@ -1,39 +1,4 @@
-<!DOCTYPE html>
-<!--
-  Page « lien d'emprunt » — https://akikoi.fr/e#<payload>
-
-  FORMAT DU LIEN (l'app Akikoi l'encode à l'identique)
-  ----------------------------------------------------
-  payload = base64url( UTF-8( JSON compact ) )
-    - base64url : alphabet RFC 4648 §5 (« - » et « _ » au lieu de « + » et « / »),
-      sans padding « = » (le décodeur accepte aussi le padding).
-    - JSON compact, versionné, clés courtes :
-        { "v":1, "o":"Perceuse", "d":"2026-09-24", "p":"Marc", "t":"2026-09-10" }
-
-      v  version du format            obligatoire, entier, = 1
-      o  objet prêté                  obligatoire, chaîne non vide
-      d  date de retour convenue      optionnel, « AAAA-MM-JJ »
-      p  prénom du prêteur            optionnel, chaîne
-      t  date du prêt                 optionnel, « AAAA-MM-JJ »
-
-    - Les clés inconnues sont ignorées (ajouts compatibles sans changer v).
-    - v inconnu, base64/UTF-8/JSON invalide, o absent ou vide, d mal formée
-      → état « lien illisible ». Un t mal formé est simplement ignoré.
-    - Les dates sont des dates civiles (sans heure ni fuseau) : l'écart de jours
-      est calculé au jour près dans le fuseau du téléphone qui ouvre la page.
-
-  Le fragment (#…) n'est jamais envoyé au serveur : tout est lu côté client via
-  location.hash. Aucun tracking, aucun script tiers.
--->
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Un objet t'a été prêté · Akikoi</title>
-  <meta name="description" content="Retrouve le résumé de ton emprunt : l'objet, qui te l'a prêté et la date de retour convenue.">
-  <meta name="robots" content="noindex">
-
-  <!-- OG générique : les messageries ne reçoivent pas le fragment, donc aucune donnée du prêt ici -->
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Akikoi">
   <meta property="og:locale" content="fr_FR">
@@ -44,6 +9,12 @@
   <meta property="og:image:width" content="600">
   <meta property="og:image:height" content="600">
   <meta name="twitter:card" content="summary">
+  <!-- OG générique : les messageries ne reçoivent pas le fragment, donc aucune donnée du prêt ici -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Un objet t'a été prêté · Akikoi</title>
+  <meta name="description" content="Retrouve le résumé de ton emprunt : l'objet, qui te l'a prêté et la date de retour convenue.">
+  <meta name="robots" content="noindex">
 
   <link rel="icon" href="/assets/logo.png">
   <link rel="apple-touch-icon" href="/assets/logo.png">
@@ -107,6 +78,7 @@
   </main>
 
   <script>
+  // Format du lien (#<payload>) : voir README.md, section « Format du lien /e ».
   (function () {
     "use strict";
 

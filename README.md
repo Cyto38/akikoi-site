@@ -25,6 +25,36 @@ Pages 100 % statiques : ouvrir un fichier `.html` dans le navigateur, ou servir 
   avec la constante `APP_URL` de l'app.
 - Captures d'écran dans le hero.
 
+## Format du lien /e
+Page du lien d'emprunt : `https://akikoi.fr/e#<payload>` (`e/index.html`). L'app Akikoi
+encode le lien à l'identique.
+
+`payload = base64url( UTF-8( JSON compact ) )`
+- base64url : alphabet RFC 4648 §5 (`-` et `_` au lieu de `+` et `/`), sans padding `=`
+  (le décodeur accepte aussi le padding).
+- JSON compact, versionné, clés courtes :
+  `{"v":1,"o":"Perceuse","d":"2026-09-24","p":"Marc","t":"2026-09-10"}`
+
+| Clé | Sens | Statut |
+|---|---|---|
+| `v` | version du format | obligatoire, entier, = 1 |
+| `o` | objet prêté | obligatoire, chaîne non vide |
+| `d` | date de retour convenue | optionnel, `AAAA-MM-JJ` |
+| `p` | prénom du prêteur | optionnel, chaîne |
+| `t` | date du prêt | optionnel, `AAAA-MM-JJ` |
+
+- Les clés inconnues sont ignorées (ajouts compatibles sans changer `v`).
+- `v` inconnu, base64/UTF-8/JSON invalide, `o` absent ou vide, `d` mal formée
+  → état « lien illisible ». Un `t` mal formé est simplement ignoré.
+- Fragment absent → état « Ce lien est incomplet ».
+- Les dates sont des dates civiles (sans heure ni fuseau) : l'écart de jours est calculé
+  au jour près dans le fuseau du téléphone qui ouvre la page.
+- `o` et `p` sont tronqués à 120 caractères à l'affichage.
+
+Le fragment (`#…`) n'est jamais envoyé au serveur : tout est lu côté client via
+`location.hash`. Aucun tracking, aucun script tiers. L'Open Graph de la page est donc
+générique (aucune donnée du prêt).
+
 ## URLs de test du lien d'emprunt
 - Date future (Perceuse, prêtée par Marc, retour 24/12/2026) :
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiUGVyY2V1c2UiLCJkIjoiMjAyNi0xMi0yNCIsInAiOiJNYXJjIiwidCI6IjIwMjYtMDktMTAifQ
