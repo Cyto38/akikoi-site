@@ -178,7 +178,8 @@
     function formatDate(date, withWeekday) {
       var opts = { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" };
       if (withWeekday) opts.weekday = "long";
-      return new Date(Date.UTC(date.y, date.m - 1, date.d)).toLocaleDateString("fr-FR", opts);
+      var text = new Date(Date.UTC(date.y, date.m - 1, date.d)).toLocaleDateString("fr-FR", opts);
+      return date.d === 1 ? text.replace(/(^|s)1(s)/, "$11er$2") : text;
     }
 
     function badgeFor(due) {

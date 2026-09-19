@@ -9,6 +9,8 @@ HTML/CSS statique, sans framework, hébergé sur **GitHub Pages**.
 - `en/index.html` — accueil EN
 - `confidentialite.html` — politique de confidentialité FR (URL Play Console)
 - `en/privacy.html` — privacy policy EN
+- `app/index.html` — redirection vers le store (`akikoi.fr/app`)
+- `e/index.html` — lien d'emprunt (`akikoi.fr/e#<payload>`), format documenté en tête du fichier
 
 ## Design
 Sobre, mobile-first, aligné sur l'app : accent `#059669`, fond clair, police système.
@@ -22,3 +24,13 @@ Pages 100 % statiques : ouvrir un fichier `.html` dans le navigateur, ou servir 
 - Lien Google Play (bouton actuellement « Bientôt disponible », désactivé) — à synchroniser
   avec la constante `APP_URL` de l'app.
 - Captures d'écran dans le hero.
+
+## URLs de test du lien d'emprunt
+- Date future (Perceuse, prêtée par Marc, retour 24/12/2026) :
+  https://akikoi.fr/e#eyJ2IjoxLCJvIjoiUGVyY2V1c2UiLCJkIjoiMjAyNi0xMi0yNCIsInAiOiJNYXJjIiwidCI6IjIwMjYtMDktMTAifQ
+- En retard (Tente 3 places, prêtée par Hélène, retour 01/09/2026) :
+  https://akikoi.fr/e#eyJ2IjoxLCJvIjoiVGVudGUgMyBwbGFjZXMiLCJkIjoiMjAyNi0wOS0wMSIsInAiOiJIw6lsw6huZSIsInQiOiIyMDI2LTA4LTE1In0
+- Sans date (« L'Étranger » de Camus, prêté par Léa) :
+  https://akikoi.fr/e#eyJ2IjoxLCJvIjoiwqsgTCfDiXRyYW5nZXIgwrsgZGUgQ2FtdXMiLCJwIjoiTMOpYSJ9
+
+En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#<payload>`.
