@@ -32,16 +32,35 @@ encode le lien à l'identique.
 `payload = base64url( UTF-8( JSON compact ) )`
 - base64url : alphabet RFC 4648 §5 (`-` et `_` au lieu de `+` et `/`), sans padding `=`
   (le décodeur accepte aussi le padding).
-- JSON compact, versionné, clés courtes :
+- JSON compact, versionné, clés courtes, dans l'ordre `v, o, d, p, t, l` :
   `{"v":1,"o":"Perceuse","d":"2026-09-24","p":"Marc","t":"2026-09-10"}`
 
 | Clé | Sens | Statut |
 |---|---|---|
 | `v` | version du format | obligatoire, entier, = 1 |
-| `o` | objet prêté | obligatoire, chaîne non vide |
-| `d` | date de retour convenue | optionnel, `AAAA-MM-JJ` |
+| `o` | objet prêté — pour un lot, le **résumé** (« Livre 1, Livre 2 et Scie ») | obligatoire, chaîne non vide |
+| `d` | date de retour convenue — pour un lot, la **plus proche** | optionnel, `AAAA-MM-JJ` |
 | `p` | prénom du prêteur | optionnel, chaîne |
 | `t` | date du prêt | optionnel, `AAAA-MM-JJ` |
+| `l` | **lot** : la liste des articles, `[{"o":…,"d":…}, …]` | optionnel, tableau |
+
+### Le lot (`l`)
+Plusieurs objets prêtés d'un coup, à la même personne, le même jour. Chaque article
+porte son objet `o` (obligatoire, chaîne non vide) et sa date de retour `d` (optionnelle,
+`AAAA-MM-JJ`) — les dates peuvent différer d'un article à l'autre.
+
+- `o` et `d` restent au premier niveau, comme **résumé** : le titre-liste et la date la
+  plus proche (le premier retour attendu). Un lecteur qui ignore `l` — une page ou une
+  app antérieure — lit donc un prêt unique, juste, à la date la plus proche.
+- Un `l` mal formé (pas un tableau, tableau vide, un article sans `o`, un `d` mal
+  formé) est **ignoré en entier** : le lien se lit par son résumé, il n'est pas
+  illisible pour autant.
+- Au plus 50 articles sont lus ; les suivants sont ignorés. `o` de chaque article est
+  tronqué à 120 caractères à l'affichage, comme `o`.
+- Sans `l` : comportement inchangé.
+
+Exemple (3 articles, deux dates) :
+`{"v":1,"o":"Livre 1, Livre 2 et Scie","d":"2026-10-04","p":"Marc","t":"2026-09-19","l":[{"o":"Livre 1","d":"2026-12-24"},{"o":"Livre 2","d":"2026-12-24"},{"o":"Scie","d":"2026-10-04"}]}`
 
 - Les clés inconnues sont ignorées (ajouts compatibles sans changer `v`).
 - `v` inconnu, base64/UTF-8/JSON invalide, `o` absent ou vide, `d` mal formée
@@ -62,5 +81,7 @@ générique (aucune donnée du prêt).
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiVGVudGUgMyBwbGFjZXMiLCJkIjoiMjAyNi0wOS0wMSIsInAiOiJIw6lsw6huZSIsInQiOiIyMDI2LTA4LTE1In0
 - Sans date (« L'Étranger » de Camus, prêté par Léa) :
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiwqsgTCfDiXRyYW5nZXIgwrsgZGUgQ2FtdXMiLCJwIjoiTMOpYSJ9
+- Lot de 3 articles (Livre 1 et Livre 2 au 24/12/2026, Scie au 04/10/2026, prêtés par Marc) :
+  https://akikoi.fr/e#eyJ2IjoxLCJvIjoiTGl2cmUgMSwgTGl2cmUgMiBldCBTY2llIiwiZCI6IjIwMjYtMTAtMDQiLCJwIjoiTWFyYyIsInQiOiIyMDI2LTA5LTE5IiwibCI6W3sibyI6IkxpdnJlIDEiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IkxpdnJlIDIiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IlNjaWUiLCJkIjoiMjAyNi0xMC0wNCJ9XX0
 
 En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#<payload>`.
