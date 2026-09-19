@@ -40,6 +40,8 @@
           <h1 id="loan-object" class="loan-object"></h1>
           <p id="loan-lender" class="loan-lender"></p>
           <p id="loan-badge" class="loan-badge"></p>
+          <!-- Lot (clé l) : une ligne par article, avec sa date et son badge -->
+          <ul id="loan-items" class="loan-items" hidden></ul>
           <dl class="loan-dates">
             <div id="loan-due-row">
               <dt>Retour prévu</dt>
@@ -84,6 +86,7 @@
 
     var ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
     var MAX_LEN = 120;
+    var MAX_ITEMS = 50;
 
     function $(id) { return document.getElementById(id); }
 
@@ -114,7 +117,26 @@
       return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
     }
 
-    // Renvoie { object, due, lender, since } ou null si illisible
+    // Lot : [{ object, due }, …] si l est un tableau bien formé, sinon null (l ignoré)
+    function decodeItems(list) {
+      if (!Array.isArray(list) || list.length === 0) return null;
+      var items = [];
+      for (var i = 0; i < list.length && i < MAX_ITEMS; i++) {
+        var raw = list[i];
+        if (!raw || typeof raw !== "object") return null;
+        var object = cleanText(raw.o);
+        if (!object) return null;
+        var due = null;
+        if (raw.d != null && raw.d !== "") {
+          due = parseIsoDate(raw.d);
+          if (!due) return null;
+        }
+        items.push({ object: object, due: due });
+      }
+      return items;
+    }
+
+    // Renvoie { object, due, lender, since, items } ou null si illisible
     function decodePayload(payload) {
       var data;
       try {
@@ -137,7 +159,8 @@
         object: object,
         due: due,
         lender: cleanText(data.p),
-        since: parseIsoDate(data.t)
+        since: parseIsoDate(data.t),
+        items: decodeItems(data.l)
       };
     }
 
@@ -165,6 +188,35 @@
       return { text: "En retard de " + (-n) + " j", tone: "late" };
     }
 
+    // « 3 objets prêtés par Marc » : le résumé d'un lot, en tête
+    function lotSummary(loan) {
+      var n = loan.items.length;
+      return n + " objets prêtés" + (loan.lender ? " par " + loan.lender : "");
+    }
+
+    function renderItems(items) {
+      var list = $("loan-items");
+      while (list.firstChild) list.removeChild(list.firstChild);
+      items.forEach(function (item) {
+        var li = document.createElement("li");
+        li.className = "loan-item";
+        var name = document.createElement("span");
+        name.className = "loan-item-object";
+        name.textContent = item.object;
+        var badge = badgeFor(item.due);
+        var badgeEl = document.createElement("span");
+        badgeEl.className = "loan-badge loan-badge-" + badge.tone;
+        badgeEl.textContent = badge.text;
+        var date = document.createElement("span");
+        date.className = "loan-item-date";
+        date.textContent = item.due ? formatDate(item.due, false) : "pas de date convenue";
+        li.appendChild(name);
+        li.appendChild(badgeEl);
+        li.appendChild(date);
+        list.appendChild(li);
+      });
+    }
+
     function show(id) {
       ["state-loan", "state-invalid", "state-empty"].forEach(function (s) {
         $(s).hidden = s !== id;
@@ -187,10 +239,18 @@
       }
 
       // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
-      $("loan-object").textContent = loan.object;
-      // « par {p} » plutôt que « prêté(e) par » : le genre de l'objet est inconnu
-      $("loan-lender").hidden = !loan.lender;
-      $("loan-lender").textContent = loan.lender ? "par " + loan.lender : "";
+      var lot = loan.items !== null;
+      $("loan-object").textContent = lot ? lotSummary(loan) : loan.object;
+      // « par {p} » plutôt que « prêté(e) par » : le genre de l'objet est inconnu.
+      // Pour un lot, le prêteur est déjà dans le résumé.
+      $("loan-lender").hidden = lot || !loan.lender;
+      $("loan-lender").textContent = !lot && loan.lender ? "par " + loan.lender : "";
+
+      // Lot : une ligne par article ; le badge et la date uniques laissent la place.
+      $("loan-items").hidden = !lot;
+      $("loan-badge").hidden = lot;
+      $("loan-due-row").hidden = lot;
+      if (lot) renderItems(loan.items);
 
       $("loan-install").textContent = loan.due
         ? "Installe Akikoi : retrouve ton emprunt, et sois prévenu avant la date convenue"
@@ -206,7 +266,7 @@
       $("loan-since-row").hidden = !loan.since;
       $("loan-since").textContent = loan.since ? formatDate(loan.since, false) : "";
 
-      document.title = loan.object + " · Akikoi";
+      document.title = (lot ? lotSummary(loan) : loan.object) + " · Akikoi";
       show("state-loan");
     }
 

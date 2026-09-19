@@ -179,6 +179,12 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 .loan-badge-soon { background: #fffbeb; color: #b45309; }
 .loan-badge-late { background: #fef2f2; color: #b91c1c; }
 .loan-badge-free { background: var(--bg-alt); color: var(--muted); }
+.loan-items { list-style: none; margin: 14px 0 18px; padding: 0; display: grid; gap: 12px; }
+.loan-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.loan-item:last-child { padding-bottom: 0; border-bottom: 0; }
+.loan-item-object { font-weight: 600; font-size: 18px; overflow-wrap: anywhere; }
+.loan-item .loan-badge { margin: 0; }
+.loan-item-date { grid-column: 1 / -1; font-size: 14px; color: var(--muted); }
 .loan-dates { margin: 0; display: grid; gap: 10px; }
 .loan-dates dt { font-size: 13px; color: var(--muted); }
 .loan-dates dd { margin: 0; font-weight: 600; }
