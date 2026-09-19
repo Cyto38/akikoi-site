@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.cyriltosi.objetspretes",
+      "sha256_cert_fingerprints": [
+        "60:A7:C8:2C:3C:D5:DD:B4:B1:62:DA:72:BF:60:30:32:F2:06:35:4D:8F:78:1C:B9:44:B0:BE:08:55:BC:BF:28",
+        "D1:F2:C8:D3:87:12:B6:01:E8:7C:B3:92:21:8D:8E:C7:59:8E:B1:7E:CA:3A:CF:71:16:17:04:D6:4D:33:F5:C6"
+      ]
+    }
+  }
+]
