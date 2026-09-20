@@ -144,8 +144,9 @@
     }
 
     function durationText(days) {
-      if (days === null) return "Durée à convenir ensemble";
-      return days === 1 ? "Durée conseillée : 1 jour" : "Durée conseillée : " + days + " jours";
+      // Les mêmes mots que l'app : une durée proposée, jamais promise.
+      if (days === null) return "Durée libre, à convenir ensemble";
+      return days === 1 ? "Durée proposée : 1 jour" : "Durée proposée : " + days + " jours";
     }
 
     function show(id) {

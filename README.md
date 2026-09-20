@@ -104,11 +104,11 @@ qu'il intéresse.
 | `o` | objet proposé | obligatoire, chaîne non vide |
 | `p` | prénom de qui propose | obligatoire, chaîne non vide |
 | `x` | « en deux mots » : ce que c'est, en une phrase | optionnel, chaîne |
-| `r` | durée conseillée, en jours | optionnel, entier ≥ 1 |
+| `r` | durée **proposée**, en jours (1, 3, 7, 15, 30 — comme les chips de l'app) | optionnel, entier ≥ 1 |
 | `n` | numéro WhatsApp, **international, chiffres seuls** (ni `+`, ni espaces) | optionnel, 6 à 15 chiffres |
 
 - `o` et `p` sont tronqués à 120 caractères à l'affichage, `x` à 300.
-- `r` absent, nul ou mal formé → « Durée à convenir ensemble ». Au-delà de 365, ignoré.
+- `r` absent, nul ou mal formé → « Durée libre, à convenir ensemble ». Au-delà de 365, ignoré.
 - `n` mal formé (lettres, trop court, trop long) est **ignoré** : la page reste lisible,
   elle dit simplement de répondre sur WhatsApp au lieu d'ouvrir la conversation.
 - `v` inconnu, base64/UTF-8/JSON invalide, `o` ou `p` absent ou vide → « lien illisible ».
