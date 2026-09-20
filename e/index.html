@@ -5,10 +5,16 @@
   <meta property="og:title" content="Un objet t'a été prêté · Akikoi">
   <meta property="og:description" content="Ouvre le lien pour voir l'objet, qui te l'a prêté et la date de retour convenue.">
   <meta property="og:url" content="https://akikoi.fr/e/">
-  <meta property="og:image" content="https://akikoi.fr/assets/og.png">
-  <meta property="og:image:width" content="600">
-  <meta property="og:image:height" content="600">
-  <meta name="twitter:card" content="summary">
+  <!--
+    Bannière plutôt que carré : WhatsApp affiche une image large en vignette
+    d'aperçu, alors qu'un carré est rogné — et les dimensions déclarées sont
+    les vraies, sans quoi l'aperçu se réserve la mauvaise place.
+  -->
+  <meta property="og:image" content="https://akikoi.fr/assets/og-banner.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta name="twitter:card" content="summary_large_image">
   <!-- OG générique : les messageries ne reçoivent pas le fragment, donc aucune donnée du prêt ici -->
 
   <meta name="viewport" content="width=device-width, initial-scale=1">

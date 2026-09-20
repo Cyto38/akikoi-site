@@ -13,6 +13,16 @@ HTML/CSS statique, sans framework, hébergé sur **GitHub Pages**.
 - `e/index.html` — lien d'emprunt (`akikoi.fr/e#<payload>`), format documenté en tête du fichier
 - `o/index.html` — objet proposé en prêt (`akikoi.fr/o#<payload>`)
 
+## Aperçus (Open Graph)
+Les pages partagées — `/o`, `/e`, `/app` — déclarent `assets/og-banner.png`,
+une **bannière 1200×630** (fond accent, symbole + « Akikoi », baseline « Prêts &
+emprunts »). WhatsApp affiche une image large en vignette d'aperçu, là où un
+carré est rogné. Les dimensions déclarées sont les vraies, et le fichier pèse
+moins de 300 Ko.
+
+L'aperçu reste **générique** : le fragment (`#…`) n'arrive jamais au serveur,
+et rien du prêt ni de l'objet proposé ne doit fuir dans une vignette.
+
 ## Design
 Sobre, mobile-first, aligné sur l'app : accent `#059669`, fond clair, police système.
 Tout le style est dans `styles.css`. Le logo (`assets/logo.png`) est le symbole de l'app.
