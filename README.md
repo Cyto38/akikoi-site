@@ -27,8 +27,8 @@ et rien du prêt ni de l'objet proposé ne doit fuir dans une vignette.
 « Ouvre le lien pour voir ce que c'est, et réponds-moi si ça t'intéresse. » :
 l'aperçu s'affiche sous le message de qui l'envoie. La page n'existe qu'en
 français ; le jour où elle aura sa version anglaise, ce sera « I'm offering an
-item to lend · Akikoi » et « Open the link to see it, and reply if you're
-interested. »
+item to lend · Akikoi », « Open the link to see it, and reply if you're
+interested. » et, sous le titre, « Offered by {p}, to anyone who needs it ».
 
 ## Design
 Sobre, mobile-first, aligné sur l'app : accent `#059669`, fond clair, police système.

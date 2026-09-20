@@ -46,8 +46,10 @@
       <!-- État : objet lisible -->
       <section id="state-offer" class="loan-state" hidden>
         <div class="loan-card">
-          <p class="loan-kicker">Proposé en prêt</p>
+          <p class="loan-kicker">À prêter</p>
           <h1 id="offer-title" class="loan-object"></h1>
+          <!-- Qui le propose, et à qui : pas à un cercle nommé, à qui en a besoin -->
+          <p id="offer-by" class="loan-lender"></p>
           <p id="offer-words" class="offer-words" hidden></p>
           <p id="offer-duration" class="loan-badge loan-badge-free"></p>
           <p class="loan-honest">Rien n'est réservé ni promis ici : c'est à vous deux de convenir du reste.</p>
@@ -175,8 +177,8 @@
       }
 
       // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
-      var titre = offer.object + " · proposé par " + offer.lender;
-      $("offer-title").textContent = titre;
+      $("offer-title").textContent = offer.object;
+      $("offer-by").textContent = "Proposé par " + offer.lender + ", à qui en a besoin";
 
       $("offer-words").hidden = !offer.words;
       $("offer-words").textContent = offer.words;
@@ -192,7 +194,7 @@
       $("offer-reply").hidden = !!offer.phone;
       $("offer-reply").textContent = "Réponds à " + offer.lender + " sur WhatsApp.";
 
-      document.title = titre + " · Akikoi";
+      document.title = offer.object + " · Akikoi";
       show("state-offer");
     }
 
