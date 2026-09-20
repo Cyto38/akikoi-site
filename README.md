@@ -11,6 +11,7 @@ HTML/CSS statique, sans framework, hébergé sur **GitHub Pages**.
 - `en/privacy.html` — privacy policy EN
 - `app/index.html` — redirection vers le store (`akikoi.fr/app`)
 - `e/index.html` — lien d'emprunt (`akikoi.fr/e#<payload>`), format documenté en tête du fichier
+- `o/index.html` — objet proposé en prêt (`akikoi.fr/o#<payload>`)
 
 ## Design
 Sobre, mobile-first, aligné sur l'app : accent `#059669`, fond clair, police système.
@@ -74,6 +75,44 @@ Le fragment (`#…`) n'est jamais envoyé au serveur : tout est lu côté client
 `location.hash`. Aucun tracking, aucun script tiers. L'Open Graph de la page est donc
 générique (aucune donnée du prêt).
 
+## Format du lien /o (objet proposé)
+Page d'un objet qu'on **propose** à ses contacts : `https://akikoi.fr/o#<payload>`
+(`o/index.html`). Même mécanique que `/e` — base64url d'un JSON compact versionné, lu
+côté client depuis `location.hash`, jamais envoyé au serveur.
+
+Un objet proposé n'est prêté à personne : il n'y a ni emprunteur, ni date de retour, ni
+prêt en cours. La page ne montre donc **rien qui ressemble à un engagement** : l'objet,
+qui le propose, deux mots pour le décrire, la durée conseillée, et un bouton pour dire
+qu'il intéresse.
+
+`payload = base64url( UTF-8( JSON compact ) )`, clés dans l'ordre `v, o, p, x, r, n` :
+`{"v":1,"o":"Tondeuse","p":"Marc","x":"Thermique, coupe 46 cm.","r":3,"n":"33612345678"}`
+
+| Clé | Sens | Statut |
+|---|---|---|
+| `v` | version du format | obligatoire, entier, = 1 |
+| `o` | objet proposé | obligatoire, chaîne non vide |
+| `p` | prénom de qui propose | obligatoire, chaîne non vide |
+| `x` | « en deux mots » : ce que c'est, en une phrase | optionnel, chaîne |
+| `r` | durée conseillée, en jours | optionnel, entier ≥ 1 |
+| `n` | numéro WhatsApp, **international, chiffres seuls** (ni `+`, ni espaces) | optionnel, 6 à 15 chiffres |
+
+- `o` et `p` sont tronqués à 120 caractères à l'affichage, `x` à 300.
+- `r` absent, nul ou mal formé → « Durée à convenir ensemble ». Au-delà de 365, ignoré.
+- `n` mal formé (lettres, trop court, trop long) est **ignoré** : la page reste lisible,
+  elle dit simplement de répondre sur WhatsApp au lieu d'ouvrir la conversation.
+- `v` inconnu, base64/UTF-8/JSON invalide, `o` ou `p` absent ou vide → « lien illisible ».
+- Clés inconnues ignorées (ajouts compatibles sans changer `v`).
+- Fragment absent → « Ce lien est incomplet ».
+
+Le bouton « Ça m'intéresse ! » ouvre `https://wa.me/<n>?text=<message>` — « Salut {p},
+{o} m'intéresse 🙂 ». Sans `n`, pas de bouton : une ligne dit de répondre à {p} sur
+WhatsApp, là où le message a été reçu.
+
+L'Open Graph est générique (« Un objet proposé en prêt · Akikoi ») : les messageries ne
+reçoivent pas le fragment, et rien de l'objet ne doit fuir dans un aperçu. `noindex`,
+comme `/e`.
+
 ## URLs de test du lien d'emprunt
 - Date future (Perceuse, prêtée par Marc, retour 24/12/2026) :
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiUGVyY2V1c2UiLCJkIjoiMjAyNi0xMi0yNCIsInAiOiJNYXJjIiwidCI6IjIwMjYtMDktMTAifQ
@@ -85,3 +124,9 @@ générique (aucune donnée du prêt).
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiTGl2cmUgMSwgTGl2cmUgMiBldCBTY2llIiwiZCI6IjIwMjYtMTAtMDQiLCJwIjoiTWFyYyIsInQiOiIyMDI2LTA5LTE5IiwibCI6W3sibyI6IkxpdnJlIDEiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IkxpdnJlIDIiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IlNjaWUiLCJkIjoiMjAyNi0xMC0wNCJ9XX0
 
 En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#<payload>`.
+
+## URLs de test du lien d'objet proposé
+- Tondeuse proposée par Marc, 3 jours conseillés, avec numéro :
+  https://akikoi.fr/o#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwicCI6Ik1hcmMiLCJ4IjoiQ291cGUgNDYgY20sIGJhYyBkZSByYW1hc3NhZ2UuIEZvbmN0aW9ubmUgbmlja2VsLiIsInIiOjMsIm4iOiIzMzYxMjM0NTY3OCJ9
+- Échelle proposée par Léa, sans durée ni numéro :
+  https://akikoi.fr/o#eyJ2IjoxLCJvIjoiw4ljaGVsbGUgMyBtIiwicCI6IkzDqWEifQ

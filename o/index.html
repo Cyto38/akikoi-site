@@ -1,0 +1,193 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Akikoi">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Un objet proposé en prêt · Akikoi">
+  <meta property="og:description" content="Quelqu'un propose un objet à ses voisins. Ouvre le lien pour voir ce que c'est et dire qu'il t'intéresse.">
+  <meta property="og:url" content="https://akikoi.fr/o/">
+  <meta property="og:image" content="https://akikoi.fr/assets/og.png">
+  <meta property="og:image:width" content="600">
+  <meta property="og:image:height" content="600">
+  <meta name="twitter:card" content="summary">
+  <!-- OG générique : les messageries ne reçoivent pas le fragment, donc rien de l'objet ici -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Un objet proposé en prêt · Akikoi</title>
+  <meta name="description" content="Un objet proposé en prêt : ce que c'est, qui le propose, et comment dire qu'il t'intéresse.">
+  <meta name="robots" content="noindex">
+
+  <link rel="icon" href="/assets/logo.png">
+  <link rel="apple-touch-icon" href="/assets/logo.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">
+        <img src="/assets/logo.png" alt="" width="36" height="36">
+        Akikoi
+      </a>
+    </div>
+  </header>
+
+  <main class="loan">
+    <div class="container">
+
+      <!-- État : objet lisible -->
+      <section id="state-offer" class="loan-state" hidden>
+        <div class="loan-card">
+          <p class="loan-kicker">Proposé en prêt</p>
+          <h1 id="offer-title" class="loan-object"></h1>
+          <p id="offer-words" class="offer-words" hidden></p>
+          <p id="offer-duration" class="loan-badge loan-badge-free"></p>
+          <p class="loan-honest">Rien n'est réservé ni promis ici : c'est à vous deux de convenir du reste.</p>
+        </div>
+
+        <div class="loan-cta">
+          <!-- Avec un numéro : la conversation s'ouvre, le message est déjà écrit -->
+          <a id="offer-whatsapp" class="cta cta-live loan-cta-btn" href="#" hidden>Ça m'intéresse !</a>
+          <!-- Sans numéro : le lien est arrivé quelque part, on répond là où il est arrivé -->
+          <p id="offer-reply" class="loan-kept" hidden></p>
+        </div>
+      </section>
+
+      <!-- État : lien illisible (payload présent mais non décodable) -->
+      <section id="state-invalid" class="loan-state loan-empty" hidden>
+        <h1>Ce lien est illisible</h1>
+        <p>Il a peut-être été coupé ou modifié en route. Demande à la personne qui propose l'objet de te le renvoyer.</p>
+        <a href="/">Découvrir Akikoi</a>
+      </section>
+
+      <!-- État : fragment absent (état par défaut sans JavaScript) -->
+      <section id="state-empty" class="loan-state loan-empty">
+        <h1>Ce lien est incomplet</h1>
+        <p>Il manque la description de l'objet à la fin de l'adresse. Demande à la personne qui le propose de te renvoyer le lien en entier.</p>
+        <a href="/">Découvrir Akikoi</a>
+      </section>
+
+      <div class="offer-foot">
+        <p>Toi aussi, propose tes objets à tes contacts</p>
+        <a class="cta cta-live loan-cta-btn" href="https://akikoi.fr/app">Installe Akikoi</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+  // Format du lien (#<payload>) : voir README.md, section « Format du lien /o ».
+  (function () {
+    "use strict";
+
+    var MAX_LEN = 120;
+    var MAX_WORDS = 300;
+    var MAX_DAYS = 365;
+
+    function $(id) { return document.getElementById(id); }
+
+    function cleanText(s, max) {
+      if (typeof s !== "string") return "";
+      s = s.replace(/\s+/g, " ").trim();
+      return s.length > max ? s.slice(0, max - 1) + "…" : s;
+    }
+
+    function base64urlToUtf8(b64) {
+      var s = b64.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+      if (!/^[A-Za-z0-9+\/]*$/.test(s) || s.length % 4 === 1) throw new Error("base64");
+      while (s.length % 4) s += "=";
+      var bin = atob(s);
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    }
+
+    // Durée conseillée en jours : un entier raisonnable, sinon rien à conseiller
+    function readDays(value) {
+      if (typeof value !== "number" || !isFinite(value)) return null;
+      var n = Math.floor(value);
+      return n >= 1 && n <= MAX_DAYS ? n : null;
+    }
+
+    // Numéro international, chiffres seuls : mal formé, il est ignoré plutôt que suivi
+    function readPhone(value) {
+      if (typeof value !== "string") return "";
+      var digits = value.replace(/[\s.\-()]/g, "").replace(/^\+/, "");
+      return /^[0-9]{6,15}$/.test(digits) ? digits : "";
+    }
+
+    // Renvoie { object, lender, words, days, phone } ou null si illisible
+    function decodePayload(payload) {
+      var data;
+      try {
+        data = JSON.parse(base64urlToUtf8(payload));
+      } catch (e) {
+        return null;
+      }
+      if (!data || typeof data !== "object" || data.v !== 1) return null;
+
+      var object = cleanText(data.o, MAX_LEN);
+      var lender = cleanText(data.p, MAX_LEN);
+      if (!object || !lender) return null;
+
+      return {
+        object: object,
+        lender: lender,
+        words: cleanText(data.x, MAX_WORDS),
+        days: readDays(data.r),
+        phone: readPhone(data.n)
+      };
+    }
+
+    function durationText(days) {
+      if (days === null) return "Durée à convenir ensemble";
+      return days === 1 ? "Durée conseillée : 1 jour" : "Durée conseillée : " + days + " jours";
+    }
+
+    function show(id) {
+      ["state-offer", "state-invalid", "state-empty"].forEach(function (s) {
+        $(s).hidden = s !== id;
+      });
+    }
+
+    function render() {
+      var payload = location.hash.replace(/^#/, "");
+      if (!payload) {
+        document.title = "Ce lien est incomplet · Akikoi";
+        show("state-empty");
+        return;
+      }
+
+      var offer = decodePayload(payload);
+      if (!offer) {
+        document.title = "Lien illisible · Akikoi";
+        show("state-invalid");
+        return;
+      }
+
+      // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
+      var titre = offer.object + " · proposé par " + offer.lender + " à ses voisins";
+      $("offer-title").textContent = titre;
+
+      $("offer-words").hidden = !offer.words;
+      $("offer-words").textContent = offer.words;
+
+      $("offer-duration").textContent = durationText(offer.days);
+
+      // Le message part écrit : celui qui reçoit n'a qu'à l'envoyer.
+      var message = "Salut " + offer.lender + ", " + offer.object + " m'intéresse 🙂";
+      $("offer-whatsapp").hidden = !offer.phone;
+      if (offer.phone) {
+        $("offer-whatsapp").href = "https://wa.me/" + offer.phone + "?text=" + encodeURIComponent(message);
+      }
+      $("offer-reply").hidden = !!offer.phone;
+      $("offer-reply").textContent = "Réponds à " + offer.lender + " sur WhatsApp.";
+
+      document.title = titre + " · Akikoi";
+      show("state-offer");
+    }
+
+    window.addEventListener("hashchange", render);
+    render();
+  })();
+  </script>
+</body>
+</html>

@@ -190,6 +190,10 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 .loan-dates dd { margin: 0; font-weight: 600; }
 .loan-dates dd::first-letter { text-transform: uppercase; }
 .loan-honest { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+/* L'objet proposé : deux mots sous le titre, et le pied qui invite à en proposer */
+.offer-words { margin: 12px 0 0; font-size: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+.offer-foot { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; }
+.offer-foot p { margin: 0 0 12px; color: var(--muted); }
 .loan-cta { margin-top: 22px; text-align: center; }
 .loan-cta-btn { display: flex; justify-content: center; width: 100%; text-align: center; line-height: 1.35; }
 .loan-keep {
