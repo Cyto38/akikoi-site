@@ -2,8 +2,12 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Akikoi">
   <meta property="og:locale" content="fr_FR">
-  <meta property="og:title" content="Un objet à prêter · Akikoi">
-  <meta property="og:description" content="Un voisin te propose un objet en prêt. Ouvre le lien pour le découvrir et lui répondre.">
+  <!--
+    L'aperçu parle à la première personne : il s'affiche sous un message que
+    quelqu'un vient d'envoyer, et c'est de son objet qu'il s'agit.
+  -->
+  <meta property="og:title" content="Je propose un objet à prêter · Akikoi">
+  <meta property="og:description" content="Ouvre le lien pour voir ce que c'est, et réponds-moi si ça t'intéresse.">
   <meta property="og:url" content="https://akikoi.fr/o/">
   <!--
     Bannière plutôt que carré : WhatsApp affiche une image large en vignette
@@ -18,8 +22,8 @@
   <!-- OG générique : les messageries ne reçoivent pas le fragment, donc rien de l'objet ici -->
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Un objet à prêter · Akikoi</title>
-  <meta name="description" content="Un voisin te propose un objet en prêt : ce que c'est, qui le propose, et comment lui répondre.">
+  <title>Je propose un objet à prêter · Akikoi</title>
+  <meta name="description" content="Ouvre le lien pour voir ce que c'est, et réponds-moi si ça t'intéresse.">
   <meta name="robots" content="noindex">
 
   <link rel="icon" href="/assets/logo.png">
@@ -171,7 +175,7 @@
       }
 
       // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
-      var titre = offer.object + " · proposé par " + offer.lender + " à ses voisins";
+      var titre = offer.object + " · proposé par " + offer.lender;
       $("offer-title").textContent = titre;
 
       $("offer-words").hidden = !offer.words;

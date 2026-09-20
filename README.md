@@ -23,6 +23,13 @@ moins de 300 Ko.
 L'aperçu reste **générique** : le fragment (`#…`) n'arrive jamais au serveur,
 et rien du prêt ni de l'objet proposé ne doit fuir dans une vignette.
 
+`/o` parle à la première personne — « Je propose un objet à prêter · Akikoi »,
+« Ouvre le lien pour voir ce que c'est, et réponds-moi si ça t'intéresse. » :
+l'aperçu s'affiche sous le message de qui l'envoie. La page n'existe qu'en
+français ; le jour où elle aura sa version anglaise, ce sera « I'm offering an
+item to lend · Akikoi » et « Open the link to see it, and reply if you're
+interested. »
+
 ## Design
 Sobre, mobile-first, aligné sur l'app : accent `#059669`, fond clair, police système.
 Tout le style est dans `styles.css`. Le logo (`assets/logo.png`) est le symbole de l'app.
