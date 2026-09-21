@@ -126,6 +126,22 @@ Le bouton « Ça m'intéresse ! » ouvre `https://wa.me/<n>?text=<message>` — 
 {o} m'intéresse 🙂 ». Sans `n`, pas de bouton : une ligne dit de répondre à {p} sur
 WhatsApp, là où le message a été reçu.
 
+### Deux adresses, une page : `/o` et `/objets`
+Le même lien s'ouvre sous deux adresses, qui ne diffèrent que par leur **aperçu** :
+
+- `/o` — un objet : « Je propose un objet à prêter · Akikoi », « Ouvre le lien pour
+  voir ce que c'est, et réponds-moi si ça t'intéresse. » ;
+- `/objets` — une liste : « Je propose quelques objets à prêter · Akikoi », « Ça vous
+  évite d'acheter. Ouvre le lien pour voir ce que je vous propose. »
+
+Les messageries ne reçoivent pas le fragment : sans deux adresses, l'aperçu d'une
+étagère annoncerait « un objet ». C'est l'app qui choisit l'adresse selon ce qu'elle
+envoie ; la **page**, elle, ne s'y fie pas — c'est la clé `l` qui décide de ce qui
+s'affiche. Une liste ouverte sur `/o` s'affiche donc en liste, et l'inverse aussi.
+
+Les deux pages partagent `assets/offre.js` et le même markup : leurs identifiants sont
+ce que le script lit. Une page qui s'en écarte casse l'autre.
+
 ### La liste (`l`)
 **Ce que quelqu'un peut prêter**, et non plus un objet seul : `l` porte la liste, chaque
 article avec son objet `o` (obligatoire, chaîne non vide), ses deux mots `x`
@@ -206,6 +222,8 @@ En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#
 ## URLs de test du lien d'objet proposé
 - Tondeuse proposée par Marc, 3 jours conseillés, avec numéro :
   https://akikoi.fr/o#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwicCI6Ik1hcmMiLCJ4IjoiQ291cGUgNDYgY20sIGJhYyBkZSByYW1hc3NhZ2UuIEZvbmN0aW9ubmUgbmlja2VsLiIsInIiOjMsIm4iOiIzMzYxMjM0NTY3OCJ9
+- Liste de 3 objets, à son adresse de liste (même payload, aperçu au pluriel) :
+  https://akikoi.fr/objets#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlLCDDiWNoZWxsZSAzIG0gZXQgUGVyY2V1c2UiLCJwIjoiTWFyYyIsIngiOiJDb3VwZSA0NiBjbSwgYmFjIGRlIHJhbWFzc2FnZS4iLCJyIjozLCJuIjoiMzM2MTIzNDU2NzgiLCJsIjpbeyJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwieCI6IkNvdXBlIDQ2IGNtLCBiYWMgZGUgcmFtYXNzYWdlLiIsInIiOjN9LHsibyI6IsOJY2hlbGxlIDMgbSIsIngiOiJBbHVtaW5pdW0sIGzDqWfDqHJlLiJ9LHsibyI6IlBlcmNldXNlIiwieCI6IkF2ZWMgc2VzIG3DqGNoZXMuIiwiciI6N31dfQ
 - Liste de 3 objets proposés par Marc (Tondeuse 3 j, Échelle sans durée, Perceuse 7 j), avec numéro :
   https://akikoi.fr/o#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlLCDDiWNoZWxsZSAzIG0gZXQgUGVyY2V1c2UiLCJwIjoiTWFyYyIsIngiOiJDb3VwZSA0NiBjbSwgYmFjIGRlIHJhbWFzc2FnZS4iLCJyIjozLCJuIjoiMzM2MTIzNDU2NzgiLCJsIjpbeyJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwieCI6IkNvdXBlIDQ2IGNtLCBiYWMgZGUgcmFtYXNzYWdlLiIsInIiOjN9LHsibyI6IsOJY2hlbGxlIDMgbSIsIngiOiJBbHVtaW5pdW0sIGzDqWfDqHJlLiJ9LHsibyI6IlBlcmNldXNlIiwieCI6IkF2ZWMgc2VzIG3DqGNoZXMuIiwiciI6N31dfQ
 - Échelle proposée par Léa, sans durée ni numéro :
