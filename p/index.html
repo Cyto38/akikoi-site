@@ -1,0 +1,145 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Akikoi">
+  <meta property="og:locale" content="fr_FR">
+  <!--
+    L'aperçu parle à la première personne : il s'affiche sous un message que
+    quelqu'un vient d'envoyer, et c'est de son emprunt qu'il s'agit.
+  -->
+  <meta property="og:title" content="Un objet m'intéresse · Akikoi">
+  <meta property="og:description" content="Ouvre le lien pour noter le prêt en un tap.">
+  <meta property="og:url" content="https://akikoi.fr/p/">
+  <meta property="og:image" content="https://akikoi.fr/assets/og-banner.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- OG générique : les messageries ne reçoivent pas le fragment, rien de l'objet ici -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Un objet m'intéresse · Akikoi</title>
+  <meta name="description" content="Ouvre le lien pour noter le prêt en un tap.">
+  <meta name="robots" content="noindex">
+
+  <link rel="icon" href="/assets/logo.png">
+  <link rel="apple-touch-icon" href="/assets/logo.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">
+        <img src="/assets/logo.png" alt="" width="36" height="36">
+        Akikoi
+      </a>
+    </div>
+  </header>
+
+  <!--
+    Cette page est un **repli**. Le lien /p est un App Link : sur le téléphone
+    du prêteur, Akikoi l'ouvre et remplit le prêt. La page ne s'affiche que si
+    l'app n'est pas là — elle dit alors ce qu'on lui voulait, et où la prendre.
+  -->
+  <main class="loan">
+    <div class="container">
+
+      <!-- État : demande lisible -->
+      <section id="state-ask" class="loan-state loan-empty" hidden>
+        <h1 id="ask-title"></h1>
+        <p>Ouvre Akikoi pour noter le prêt.</p>
+        <a class="cta cta-live loan-cta-btn" href="https://akikoi.fr/app">Installe Akikoi</a>
+      </section>
+
+      <!-- État : lien illisible (payload présent mais non décodable) -->
+      <section id="state-invalid" class="loan-state loan-empty" hidden>
+        <h1>Ce lien est illisible</h1>
+        <p>Il a peut-être été coupé ou modifié en route. Demande à la personne qui te l'a envoyé de te le renvoyer.</p>
+        <a href="/">Découvrir Akikoi</a>
+      </section>
+
+      <!-- État : fragment absent (état par défaut sans JavaScript) -->
+      <section id="state-empty" class="loan-state loan-empty">
+        <h1>Ce lien est incomplet</h1>
+        <p>Il manque la fin de l'adresse. Demande à la personne qui te l'a envoyé de te renvoyer le lien en entier.</p>
+        <a href="/">Découvrir Akikoi</a>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+  // Format du lien (#<payload>) : voir README.md, section « Format du lien /p ».
+  (function () {
+    "use strict";
+
+    var MAX_LEN = 120;
+
+    function $(id) { return document.getElementById(id); }
+
+    function cleanText(s, max) {
+      if (typeof s !== "string") return "";
+      s = s.replace(/\s+/g, " ").trim();
+      return s.length > max ? s.slice(0, max - 1) + "…" : s;
+    }
+
+    function base64urlToUtf8(b64) {
+      var s = b64.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+      if (!/^[A-Za-z0-9+\/]*$/.test(s) || s.length % 4 === 1) throw new Error("base64");
+      while (s.length % 4) s += "=";
+      var bin = atob(s);
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    }
+
+    // Renvoie { object, borrower } ou null si illisible
+    function decodePayload(payload) {
+      var data;
+      try {
+        data = JSON.parse(base64urlToUtf8(payload));
+      } catch (e) {
+        return null;
+      }
+      if (!data || typeof data !== "object" || data.v !== 1) return null;
+      var object = cleanText(data.o, MAX_LEN);
+      if (!object) return null;
+      return { object: object, borrower: cleanText(data.e, MAX_LEN) };
+    }
+
+    function show(id) {
+      ["state-ask", "state-invalid", "state-empty"].forEach(function (s) {
+        $(s).hidden = s !== id;
+      });
+    }
+
+    function render() {
+      var payload = location.hash.replace(/^#/, "");
+      if (!payload) {
+        document.title = "Ce lien est incomplet · Akikoi";
+        show("state-empty");
+        return;
+      }
+
+      var ask = decodePayload(payload);
+      if (!ask) {
+        document.title = "Lien illisible · Akikoi";
+        show("state-invalid");
+        return;
+      }
+
+      // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
+      // Sans prénom, la phrase reste vraie sans nommer personne.
+      $("ask-title").textContent = ask.borrower
+        ? ask.borrower + " veut emprunter " + ask.object
+        : "Quelqu'un veut emprunter " + ask.object;
+
+      document.title = ask.object + " · Akikoi";
+      show("state-ask");
+    }
+
+    window.addEventListener("hashchange", render);
+    render();
+  })();
+  </script>
+</body>
+</html>

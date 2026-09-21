@@ -154,6 +154,37 @@ L'Open Graph est générique (« Un objet proposé en prêt · Akikoi ») : les 
 reçoivent pas le fragment, et rien de l'objet ne doit fuir dans un aperçu. `noindex`,
 comme `/e`.
 
+## Format du lien /p (« ça m'intéresse »)
+Le chemin **retour**, de qui emprunte vers qui prête : `https://akikoi.fr/p#<payload>`
+(`p/index.html`). Même mécanique que `/e` et `/o` — base64url d'un JSON compact
+versionné, lu côté client depuis `location.hash`, jamais envoyé au serveur.
+
+Le bouton « Ça m'intéresse ! » de `/o` ne fait plus qu'ouvrir une conversation : il
+glisse ce lien dans le message. Chez le prêteur, Akikoi l'ouvre (App Link) et pose le
+prêt à moitié rempli — l'objet et la personne. **Rien n'est créé sans lui** : c'est un
+formulaire qui s'ouvre, pas une fiche qui apparaît.
+
+`payload = base64url( UTF-8( JSON compact ) )`, clés dans l'ordre `v, o, e` :
+`{"v":1,"o":"Tondeuse thermique","e":"Léa"}`
+
+| Clé | Sens | Statut |
+|---|---|---|
+| `v` | version du format | obligatoire, entier, = 1 |
+| `o` | objet demandé — celui de l'annonce | obligatoire, chaîne non vide |
+| `e` | prénom de qui demande | optionnel, chaîne |
+
+- `o` et `e` sont tronqués à 120 caractères à l'affichage.
+- `v` inconnu, base64/UTF-8/JSON invalide, `o` absent ou vide → « lien illisible ».
+- Clés inconnues ignorées (ajouts compatibles sans changer `v`).
+- Fragment absent → « Ce lien est incomplet ».
+
+La page est un **repli**, et se lit comme tel : « {e} veut emprunter {o} », « Ouvre
+Akikoi pour noter le prêt », et le lien d'installation. Sans `e`, « Quelqu'un veut
+emprunter {o} » — la phrase reste vraie sans nommer personne. Sur le téléphone du
+prêteur qui a l'app, cette page ne s'affiche jamais : l'App Link la court-circuite.
+
+L'Open Graph est générique, `noindex`, comme `/e` et `/o`.
+
 ## URLs de test du lien d'emprunt
 - Date future (Perceuse, prêtée par Marc, retour 24/12/2026) :
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiUGVyY2V1c2UiLCJkIjoiMjAyNi0xMi0yNCIsInAiOiJNYXJjIiwidCI6IjIwMjYtMDktMTAifQ
@@ -165,6 +196,12 @@ comme `/e`.
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiTGl2cmUgMSwgTGl2cmUgMiBldCBTY2llIiwiZCI6IjIwMjYtMTAtMDQiLCJwIjoiTWFyYyIsInQiOiIyMDI2LTA5LTE5IiwibCI6W3sibyI6IkxpdnJlIDEiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IkxpdnJlIDIiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IlNjaWUiLCJkIjoiMjAyNi0xMC0wNCJ9XX0
 
 En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#<payload>`.
+
+## URLs de test du lien « ça m'intéresse »
+- Léa veut emprunter la tondeuse :
+  https://akikoi.fr/p#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwiZSI6IkzDqWEifQ
+- Sans prénom (« Quelqu'un veut emprunter Échelle 3 m ») :
+  https://akikoi.fr/p#eyJ2IjoxLCJvIjoiw4ljaGVsbGUgMyBtIn0
 
 ## URLs de test du lien d'objet proposé
 - Tondeuse proposée par Marc, 3 jours conseillés, avec numéro :
