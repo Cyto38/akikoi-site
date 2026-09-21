@@ -56,6 +56,16 @@
         </div>
 
         <div class="loan-cta">
+          <!--
+            Le prénom signe le message, et voyage jusqu'au prêteur dans le lien
+            /p : sans lui, il reçoit « Quelqu'un veut emprunter… ». Optionnel —
+            on ne bloque pas un « ça m'intéresse » pour un champ.
+          -->
+          <label class="offer-name" for="offer-firstname" hidden id="offer-name-row">
+            <span>Ton prénom (optionnel)</span>
+            <input id="offer-firstname" type="text" autocomplete="given-name"
+                   maxlength="40" placeholder="Ex. : Léa">
+          </label>
           <!-- Avec un numéro : la conversation s'ouvre, le message est déjà écrit -->
           <a id="offer-whatsapp" class="cta cta-live loan-cta-btn" href="#" hidden>Ça m'intéresse !</a>
           <!-- Sans numéro : le lien est arrivé quelque part, on répond là où il est arrivé -->
@@ -67,6 +77,11 @@
       <section id="state-offers" class="loan-state" hidden>
         <p class="loan-kicker">À prêter</p>
         <h1 id="offers-title" class="loan-object"></h1>
+        <label class="offer-name" for="offers-firstname">
+          <span>Ton prénom (optionnel)</span>
+          <input id="offers-firstname" type="text" autocomplete="given-name"
+                 maxlength="40" placeholder="Ex. : Léa">
+        </label>
         <ul id="offers-list" class="offer-list"></ul>
         <!-- Sans numéro : une seule fois sous la liste, c'est la même réponse pour tous -->
         <p id="offers-reply" class="loan-kept" hidden></p>
@@ -186,11 +201,36 @@
       return days === 1 ? "Durée proposée : 1 jour" : "Durée proposée : " + days + " jours";
     }
 
-    // Le message part écrit : celui qui reçoit n'a qu'à l'envoyer. Dans une
-    // liste, il nomme **cet** objet-là, pas le résumé.
-    function interestLink(offer, object) {
-      return "https://wa.me/" + offer.phone + "?text=" +
-        encodeURIComponent("Salut " + offer.lender + ", " + object + " m'intéresse 🙂");
+    function utf8ToBase64url(s) {
+      var bytes = new TextEncoder().encode(s);
+      var bin = "";
+      for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+
+    // Le lien retour (README, « Format du lien /p ») : chez le prêteur, Akikoi
+    // l'ouvre et pose le prêt à moitié rempli — l'objet, et qui le demande.
+    function loanLink(object, firstName) {
+      var data = firstName ? { v: 1, o: object, e: firstName } : { v: 1, o: object };
+      return "https://akikoi.fr/p#" + utf8ToBase64url(JSON.stringify(data));
+    }
+
+    /** Le prénom saisi, resserré — vide s'il n'y en a pas. */
+    function firstNameOf(id) {
+      var champ = $(id);
+      return champ ? cleanText(champ.value, MAX_LEN) : "";
+    }
+
+    /*
+      Le message part écrit : celui qui reçoit n'a qu'à l'envoyer. Dans une
+      liste, il nomme **cet** objet-là, pas le résumé. Il se signe du prénom
+      s'il y en a un, et porte le lien qui note le prêt d'un tap.
+    */
+    function interestLink(offer, object, firstName) {
+      var salutation = "Salut " + offer.lender + ", " + object + " m'intéresse 🙂";
+      var message = (firstName ? salutation + " — " + firstName : salutation) +
+        "\n📦 Note le prêt en un tap → " + loanLink(object, firstName);
+      return "https://wa.me/" + offer.phone + "?text=" + encodeURIComponent(message);
     }
 
     // Une carte par objet : son nom, ses deux mots, sa durée, son bouton.
@@ -221,7 +261,7 @@
         if (offer.phone) {
           var cta = document.createElement("a");
           cta.className = "cta cta-live loan-cta-btn";
-          cta.href = interestLink(offer, item.object);
+          cta.href = interestLink(offer, item.object, firstNameOf("offers-firstname"));
           cta.textContent = "Ça m'intéresse !";
           li.appendChild(cta);
         }
@@ -272,13 +312,27 @@
       $("offer-duration").textContent = durationText(offer.days);
 
       $("offer-whatsapp").hidden = !offer.phone;
-      if (offer.phone) $("offer-whatsapp").href = interestLink(offer, offer.object);
+      $("offer-name-row").hidden = !offer.phone;
+      if (offer.phone) {
+        $("offer-whatsapp").href = interestLink(offer, offer.object, firstNameOf("offer-firstname"));
+      }
       $("offer-reply").hidden = !!offer.phone;
       $("offer-reply").textContent = "Réponds à " + offer.lender + " sur WhatsApp.";
 
       document.title = offer.object + " · Akikoi";
       show("state-offer");
     }
+
+    /*
+      Le prénom se tape **après** que la page s'est affichée : les liens se
+      refont à chaque frappe, sans bouton à presser pour « valider ». Écouté
+      sur le document, les champs naissant avec la liste.
+    */
+    document.addEventListener("input", function (e) {
+      if (e.target && (e.target.id === "offer-firstname" || e.target.id === "offers-firstname")) {
+        render();
+      }
+    });
 
     window.addEventListener("hashchange", render);
     render();
