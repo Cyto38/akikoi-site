@@ -63,6 +63,16 @@
         </div>
       </section>
 
+      <!-- État : une liste d'objets (clé l) — ce que quelqu'un peut prêter -->
+      <section id="state-offers" class="loan-state" hidden>
+        <p class="loan-kicker">À prêter</p>
+        <h1 id="offers-title" class="loan-object"></h1>
+        <ul id="offers-list" class="offer-list"></ul>
+        <!-- Sans numéro : une seule fois sous la liste, c'est la même réponse pour tous -->
+        <p id="offers-reply" class="loan-kept" hidden></p>
+        <p class="loan-honest">Rien n'est réservé ni promis ici : c'est à vous deux de convenir du reste.</p>
+      </section>
+
       <!-- État : lien illisible (payload présent mais non décodable) -->
       <section id="state-invalid" class="loan-state loan-empty" hidden>
         <h1>Ce lien est illisible</h1>
@@ -93,6 +103,7 @@
     var MAX_LEN = 120;
     var MAX_WORDS = 300;
     var MAX_DAYS = 365;
+    var MAX_ITEMS = 50;
 
     function $(id) { return document.getElementById(id); }
 
@@ -126,7 +137,26 @@
       return /^[0-9]{6,15}$/.test(digits) ? digits : "";
     }
 
-    // Renvoie { object, lender, words, days, phone } ou null si illisible
+    // Liste : [{ object, words, days }, …] si l est un tableau bien formé, sinon
+    // null — le lien se lit alors par son résumé, il n'est pas illisible.
+    function decodeItems(list) {
+      if (!Array.isArray(list) || list.length === 0) return null;
+      var items = [];
+      for (var i = 0; i < list.length && i < MAX_ITEMS; i++) {
+        var raw = list[i];
+        if (!raw || typeof raw !== "object") return null;
+        var object = cleanText(raw.o, MAX_LEN);
+        if (!object) return null;
+        items.push({
+          object: object,
+          words: cleanText(raw.x, MAX_WORDS),
+          days: readDays(raw.r)
+        });
+      }
+      return items;
+    }
+
+    // Renvoie { object, lender, words, days, phone, items } ou null si illisible
     function decodePayload(payload) {
       var data;
       try {
@@ -145,7 +175,8 @@
         lender: lender,
         words: cleanText(data.x, MAX_WORDS),
         days: readDays(data.r),
-        phone: readPhone(data.n)
+        phone: readPhone(data.n),
+        items: decodeItems(data.l)
       };
     }
 
@@ -155,8 +186,52 @@
       return days === 1 ? "Durée proposée : 1 jour" : "Durée proposée : " + days + " jours";
     }
 
+    // Le message part écrit : celui qui reçoit n'a qu'à l'envoyer. Dans une
+    // liste, il nomme **cet** objet-là, pas le résumé.
+    function interestLink(offer, object) {
+      return "https://wa.me/" + offer.phone + "?text=" +
+        encodeURIComponent("Salut " + offer.lender + ", " + object + " m'intéresse 🙂");
+    }
+
+    // Une carte par objet : son nom, ses deux mots, sa durée, son bouton.
+    function renderItems(offer) {
+      var list = $("offers-list");
+      while (list.firstChild) list.removeChild(list.firstChild);
+      offer.items.forEach(function (item) {
+        var li = document.createElement("li");
+        li.className = "loan-card offer-card";
+
+        var name = document.createElement("h2");
+        name.className = "offer-card-object";
+        name.textContent = item.object;
+        li.appendChild(name);
+
+        if (item.words) {
+          var words = document.createElement("p");
+          words.className = "offer-words";
+          words.textContent = item.words;
+          li.appendChild(words);
+        }
+
+        var duration = document.createElement("p");
+        duration.className = "loan-badge loan-badge-free";
+        duration.textContent = durationText(item.days);
+        li.appendChild(duration);
+
+        if (offer.phone) {
+          var cta = document.createElement("a");
+          cta.className = "cta cta-live loan-cta-btn";
+          cta.href = interestLink(offer, item.object);
+          cta.textContent = "Ça m'intéresse !";
+          li.appendChild(cta);
+        }
+
+        list.appendChild(li);
+      });
+    }
+
     function show(id) {
-      ["state-offer", "state-invalid", "state-empty"].forEach(function (s) {
+      ["state-offer", "state-offers", "state-invalid", "state-empty"].forEach(function (s) {
         $(s).hidden = s !== id;
       });
     }
@@ -176,6 +251,17 @@
         return;
       }
 
+      // Une liste d'objets : ce que quelqu'un peut prêter, une carte chacun.
+      if (offer.items) {
+        $("offers-title").textContent = "Ce que " + offer.lender + " peut prêter";
+        renderItems(offer);
+        $("offers-reply").hidden = !!offer.phone;
+        $("offers-reply").textContent = "Réponds à " + offer.lender + " sur WhatsApp.";
+        document.title = "Ce que " + offer.lender + " peut prêter · Akikoi";
+        show("state-offers");
+        return;
+      }
+
       // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
       $("offer-title").textContent = offer.object;
       $("offer-by").textContent = "Proposé par " + offer.lender + ", à qui en a besoin";
@@ -185,12 +271,8 @@
 
       $("offer-duration").textContent = durationText(offer.days);
 
-      // Le message part écrit : celui qui reçoit n'a qu'à l'envoyer.
-      var message = "Salut " + offer.lender + ", " + offer.object + " m'intéresse 🙂";
       $("offer-whatsapp").hidden = !offer.phone;
-      if (offer.phone) {
-        $("offer-whatsapp").href = "https://wa.me/" + offer.phone + "?text=" + encodeURIComponent(message);
-      }
+      if (offer.phone) $("offer-whatsapp").href = interestLink(offer, offer.object);
       $("offer-reply").hidden = !!offer.phone;
       $("offer-reply").textContent = "Réponds à " + offer.lender + " sur WhatsApp.";
 

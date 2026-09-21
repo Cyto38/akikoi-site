@@ -192,6 +192,13 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 .loan-honest { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
 /* L'objet proposé : deux mots sous le titre, et le pied qui invite à en proposer */
 .offer-words { margin: 12px 0 0; font-size: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+/* La liste « Ce que {p} peut prêter » : une carte par objet, empilées */
+.offer-list { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 14px; }
+.offer-card { display: grid; }
+.offer-card-object { margin: 0; font-size: 21px; line-height: 1.2; overflow-wrap: anywhere; }
+.offer-card .offer-words { margin: 8px 0 0; font-size: 16px; }
+.offer-card .loan-badge { justify-self: start; margin: 12px 0 0; font-size: 15px; }
+.offer-card .loan-cta-btn { margin-top: 16px; }
 .offer-foot { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; }
 .offer-foot p { margin: 0 0 12px; color: var(--muted); }
 .loan-cta { margin-top: 22px; text-align: center; }

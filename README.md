@@ -126,6 +126,30 @@ Le bouton « Ça m'intéresse ! » ouvre `https://wa.me/<n>?text=<message>` — 
 {o} m'intéresse 🙂 ». Sans `n`, pas de bouton : une ligne dit de répondre à {p} sur
 WhatsApp, là où le message a été reçu.
 
+### La liste (`l`)
+**Ce que quelqu'un peut prêter**, et non plus un objet seul : `l` porte la liste, chaque
+article avec son objet `o` (obligatoire, chaîne non vide), ses deux mots `x`
+(optionnel) et sa durée proposée `r` (optionnelle). Même mécanique que le lot de `/e`.
+
+- `o`, `x` et `r` restent au premier niveau, comme **résumé** : le titre-liste
+  (« Tondeuse, Échelle et Perceuse ») et ce qui décrit le premier objet. Un lecteur qui
+  ignore `l` — une page ou une app antérieure — lit donc une annonce juste, pour un
+  objet. `p` et `n` valent pour toute la liste : c'est la même personne qui propose.
+- Un `l` mal formé (pas un tableau, tableau vide, un article sans `o`) est **ignoré en
+  entier** : le lien se lit par son résumé, il n'est pas illisible pour autant.
+- Au plus 50 articles sont lus ; les suivants sont ignorés. `o` de chaque article est
+  tronqué à 120 caractères, `x` à 300, `r` suit les mêmes bornes qu'au premier niveau.
+- Sans `l` : comportement inchangé.
+
+Avec `l`, la page titre « Ce que {p} peut prêter » et pose une carte par objet — son
+nom, ses deux mots, sa durée proposée —, chacune avec son bouton « Ça m'intéresse ! »
+dont le message nomme **cet** objet-là. Sans `n`, pas de boutons : la ligne « Réponds à
+{p} sur WhatsApp. » est posée **une fois** sous la liste, et non répétée sous chaque
+carte — c'est la même réponse pour tous les objets.
+
+Exemple (3 objets) :
+`{"v":1,"o":"Tondeuse thermique, Échelle 3 m et Perceuse","p":"Marc","x":"Coupe 46 cm.","r":3,"n":"33612345678","l":[{"o":"Tondeuse thermique","x":"Coupe 46 cm, bac de ramassage.","r":3},{"o":"Échelle 3 m","x":"Aluminium, légère."},{"o":"Perceuse","x":"Avec ses mèches.","r":7}]}`
+
 L'Open Graph est générique (« Un objet proposé en prêt · Akikoi ») : les messageries ne
 reçoivent pas le fragment, et rien de l'objet ne doit fuir dans un aperçu. `noindex`,
 comme `/e`.
@@ -145,5 +169,7 @@ En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#
 ## URLs de test du lien d'objet proposé
 - Tondeuse proposée par Marc, 3 jours conseillés, avec numéro :
   https://akikoi.fr/o#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwicCI6Ik1hcmMiLCJ4IjoiQ291cGUgNDYgY20sIGJhYyBkZSByYW1hc3NhZ2UuIEZvbmN0aW9ubmUgbmlja2VsLiIsInIiOjMsIm4iOiIzMzYxMjM0NTY3OCJ9
+- Liste de 3 objets proposés par Marc (Tondeuse 3 j, Échelle sans durée, Perceuse 7 j), avec numéro :
+  https://akikoi.fr/o#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlLCDDiWNoZWxsZSAzIG0gZXQgUGVyY2V1c2UiLCJwIjoiTWFyYyIsIngiOiJDb3VwZSA0NiBjbSwgYmFjIGRlIHJhbWFzc2FnZS4iLCJyIjozLCJuIjoiMzM2MTIzNDU2NzgiLCJsIjpbeyJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwieCI6IkNvdXBlIDQ2IGNtLCBiYWMgZGUgcmFtYXNzYWdlLiIsInIiOjN9LHsibyI6IsOJY2hlbGxlIDMgbSIsIngiOiJBbHVtaW5pdW0sIGzDqWfDqHJlLiJ9LHsibyI6IlBlcmNldXNlIiwieCI6IkF2ZWMgc2VzIG3DqGNoZXMuIiwiciI6N31dfQ
 - Échelle proposée par Léa, sans durée ni numéro :
   https://akikoi.fr/o#eyJ2IjoxLCJvIjoiw4ljaGVsbGUgMyBtIiwicCI6IkzDqWEifQ
