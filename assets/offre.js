@@ -124,12 +124,17 @@
   /*
     Le message part écrit : celui qui reçoit n'a qu'à l'envoyer. Dans une
     liste, il nomme **cet** objet-là, pas le résumé. Il se signe du prénom
-    s'il y en a un, et porte le lien qui note le prêt d'un tap.
+    s'il y en a un, et porte le lien qui note le prêt.
+
+    La seconde ligne ne donne pas d'ordre. « Note le prêt en un tap » disait au
+    prêteur ce qu'il avait à faire, dans un message envoyé par quelqu'un
+    d'autre : l'app parlait à la place de qui écrit. « via Akikoi » signe le
+    lien, et s'arrête là.
   */
   function interestLink(offer, object, firstName) {
     var salutation = "Salut " + offer.lender + ", " + object + " m'intéresse 🙂";
     var message = (firstName ? salutation + " — " + firstName : salutation) +
-      "\n📦 Note le prêt en un tap → " + loanLink(object, firstName);
+      "\n📦 via Akikoi · " + loanLink(object, firstName);
     return "https://wa.me/" + offer.phone + "?text=" + encodeURIComponent(message);
   }
 

@@ -122,9 +122,17 @@ qu'il intéresse.
 - Clés inconnues ignorées (ajouts compatibles sans changer `v`).
 - Fragment absent → « Ce lien est incomplet ».
 
-Le bouton « Ça m'intéresse ! » ouvre `https://wa.me/<n>?text=<message>` — « Salut {p},
-{o} m'intéresse 🙂 ». Sans `n`, pas de bouton : une ligne dit de répondre à {p} sur
-WhatsApp, là où le message a été reçu.
+Le bouton « Ça m'intéresse ! » ouvre `https://wa.me/<n>?text=<message>`, en deux lignes :
+
+    Salut {p}, {o} m'intéresse 🙂 — {prénom}
+    📦 via Akikoi · https://akikoi.fr/p#<payload>
+
+Le prénom vient du champ « Ton prénom (optionnel) » : sans lui, ni tiret ni signature.
+La seconde ligne signe le lien, elle ne donne pas d'ordre — c'est un message envoyé par
+quelqu'un, l'app n'y parle pas à sa place (cf. « Format du lien /p »).
+
+Sans `n`, pas de bouton : une ligne dit de répondre à {p} sur WhatsApp, là où le
+message a été reçu.
 
 ### Deux adresses, une page : `/o` et `/objets`
 Le même lien s'ouvre sous deux adresses, qui ne diffèrent que par leur **aperçu** :
