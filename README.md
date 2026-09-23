@@ -236,3 +236,13 @@ En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#
   https://akikoi.fr/o#eyJ2IjoxLCJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlLCDDiWNoZWxsZSAzIG0gZXQgUGVyY2V1c2UiLCJwIjoiTWFyYyIsIngiOiJDb3VwZSA0NiBjbSwgYmFjIGRlIHJhbWFzc2FnZS4iLCJyIjozLCJuIjoiMzM2MTIzNDU2NzgiLCJsIjpbeyJvIjoiVG9uZGV1c2UgdGhlcm1pcXVlIiwieCI6IkNvdXBlIDQ2IGNtLCBiYWMgZGUgcmFtYXNzYWdlLiIsInIiOjN9LHsibyI6IsOJY2hlbGxlIDMgbSIsIngiOiJBbHVtaW5pdW0sIGzDqWfDqHJlLiJ9LHsibyI6IlBlcmNldXNlIiwieCI6IkF2ZWMgc2VzIG3DqGNoZXMuIiwiciI6N31dfQ
 - Échelle proposée par Léa, sans durée ni numéro :
   https://akikoi.fr/o#eyJ2IjoxLCJvIjoiw4ljaGVsbGUgMyBtIiwicCI6IkzDqWEifQ
+
+## Bannières d’aperçu (à faire)
+Les pages partagent `assets/og-banner.png` (1200×630), qui porte le logo et la
+baseline. Le slogan **n’y est pas encore** : il doit s’écrire sous la baseline,
+« Au lieu d’acheter, on prête. » sur la bannière française, et une seconde image
+`assets/og-banner-en.png` porter « Lend, don’t buy. » pour les pages `/en/*`.
+
+D’ici là, les pages anglaises pointent vers la bannière existante : mieux vaut un
+aperçu sans slogan qu’un aperçu cassé. Les balises `og:title` et `og:description`,
+elles, disent déjà le slogan dans les deux langues.
