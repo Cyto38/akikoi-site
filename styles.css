@@ -192,6 +192,21 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 .loan-honest { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
 /* L'objet proposé : deux mots sous le titre, et le pied qui invite à en proposer */
 .offer-words { margin: 12px 0 0; font-size: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+/* Le manifeste : six lignes, larges, et rien autour */
+.manifeste { padding: 32px 0 56px; }
+.manifeste .container { max-width: 620px; }
+.manifeste h1 { font-size: 34px; line-height: 1.15; margin: 0 0 24px; }
+.manifeste-lignes { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.manifeste-lignes li {
+  font-size: 19px;
+  line-height: 1.5;
+  padding-left: 18px;
+  border-left: 2px solid var(--border);
+}
+/* La feuille est un signe secondaire : jamais dans le logo, jamais en tête. */
+.feuille { opacity: 0.8; }
+.manifeste-pied { margin: 32px 0 0; }
+
 /* La raison d'être, en tête des pages qui portent un lien */
 .site-eco {
   margin: 0 0 18px;
