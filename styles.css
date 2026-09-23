@@ -192,6 +192,13 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 .loan-honest { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
 /* L'objet proposé : deux mots sous le titre, et le pied qui invite à en proposer */
 .offer-words { margin: 12px 0 0; font-size: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+/* La raison d'être, en tête des pages qui portent un lien */
+.site-eco {
+  margin: 0 0 18px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
 /* Le prénom de qui demande : au-dessus du bouton, et jamais exigé */
 .offer-name { display: grid; gap: 6px; margin: 0 0 14px; text-align: left; }
 .offer-name span { font-size: 14px; color: var(--muted); }
