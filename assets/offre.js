@@ -126,13 +126,18 @@
     liste, il nomme **cet** objet-là, pas le résumé. Il se signe du prénom
     s'il y en a un, et porte le lien qui note le prêt.
 
-    La seconde ligne ne donne pas d'ordre. « Note le prêt en un tap » disait au
-    prêteur ce qu'il avait à faire, dans un message envoyé par quelqu'un
-    d'autre : l'app parlait à la place de qui écrit. « via Akikoi » signe le
-    lien, et s'arrête là.
+    Il **pose une question**. « Ça m'intéresse » laissait au prêteur la charge
+    de relancer ; « On se cale quand pour la remise ? » rend la main, et dit
+    que le reste se convient à deux — un rendez-vous, pas une commande.
+
+    La seconde ligne, elle, ne donne pas d'ordre. « Note le prêt en un tap »
+    disait au prêteur ce qu'il avait à faire, dans un message envoyé par
+    quelqu'un d'autre : l'app parlait à la place de qui écrit. « via Akikoi »
+    signe le lien, et s'arrête là.
   */
   function interestLink(offer, object, firstName) {
-    var salutation = "Salut " + offer.lender + ", " + object + " m'intéresse 🙂";
+    var salutation = "Salut " + offer.lender + ", " + object +
+      " m'intéresse 🙂 On se cale quand pour la remise ?";
     var message = (firstName ? salutation + " — " + firstName : salutation) +
       "\n📦 via Akikoi · " + loanLink(object, firstName);
     return "https://wa.me/" + offer.phone + "?text=" + encodeURIComponent(message);
