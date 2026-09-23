@@ -125,7 +125,7 @@ qu'il intéresse.
 Le bouton « Ça m'intéresse ! » ouvre `https://wa.me/<n>?text=<message>`, en deux lignes :
 
     Salut {p}, {o} m'intéresse 🙂 On se cale quand pour la remise ? — {prénom}
-    📦 via Akikoi · https://akikoi.fr/p#<payload>
+    📦 via Akikoi · au lieu d’acheter, on prête · https://akikoi.fr/p#<payload>
 
 Le prénom vient du champ « Ton prénom (optionnel) » : sans lui, ni tiret ni signature.
 La seconde ligne signe le lien, elle ne donne pas d'ordre — c'est un message envoyé par

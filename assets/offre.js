@@ -139,7 +139,7 @@
     var salutation = "Salut " + offer.lender + ", " + object +
       " m'intéresse 🙂 On se cale quand pour la remise ?";
     var message = (firstName ? salutation + " — " + firstName : salutation) +
-      "\n📦 via Akikoi · " + loanLink(object, firstName);
+      "\n📦 via Akikoi · au lieu d’acheter, on prête · " + loanLink(object, firstName);
     return "https://wa.me/" + offer.phone + "?text=" + encodeURIComponent(message);
   }
 
