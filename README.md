@@ -124,12 +124,20 @@ qu'il intéresse.
 
 Le bouton « Ça m'intéresse ! » ouvre `https://wa.me/<n>?text=<message>`, en deux lignes :
 
-    Salut {p}, {o} m'intéresse 🙂 On se cale quand pour la remise ? — {prénom}
-    📦 via Akikoi · au lieu d’acheter, on prête · https://akikoi.fr/p#<payload>
+    Salut {p}, {o} m'intéresse 🙂 Il est toujours dispo ? Si oui, on se cale quand pour la remise ? — {prénom}
+    📦 via Akikoi · https://akikoi.fr/p#<payload>
+
+Deux questions, dans cet ordre. « Il est toujours dispo ? » d'abord : une annonce reste
+en ligne après que l'objet est parti, et demander la remise d'un objet déjà prêté met
+les deux dans l'embarras. « Si oui… » ensuite, au conditionnel, et qui rend la main.
 
 Le prénom vient du champ « Ton prénom (optionnel) » : sans lui, ni tiret ni signature.
 La seconde ligne signe le lien, elle ne donne pas d'ordre — c'est un message envoyé par
 quelqu'un, l'app n'y parle pas à sa place (cf. « Format du lien /p »).
+
+La version anglaise, écrite d'avance pour le jour où les pages de lien l'auront (v1.3) :
+
+    Hi {p}, I'm interested in {o} 🙂 Still available? If so, when shall we meet for the handover?
 
 Sans `n`, pas de bouton : une ligne dit de répondre à {p} sur WhatsApp, là où le
 message a été reçu.

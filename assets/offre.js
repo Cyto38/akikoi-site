@@ -126,9 +126,11 @@
     liste, il nomme **cet** objet-là, pas le résumé. Il se signe du prénom
     s'il y en a un, et porte le lien qui note le prêt.
 
-    Il **pose une question**. « Ça m'intéresse » laissait au prêteur la charge
-    de relancer ; « On se cale quand pour la remise ? » rend la main, et dit
-    que le reste se convient à deux — un rendez-vous, pas une commande.
+    Il **pose deux questions, dans cet ordre**. « Il est toujours dispo ? »
+    d'abord : une annonce reste en ligne après que l'objet est parti, et
+    demander la remise d'un objet déjà prêté met les deux dans l'embarras.
+    « Si oui, on se cale quand pour la remise ? » ensuite — conditionnel, et qui
+    rend la main : le reste se convient à deux, un rendez-vous, pas une commande.
 
     La seconde ligne, elle, ne donne pas d'ordre. « Note le prêt en un tap »
     disait au prêteur ce qu'il avait à faire, dans un message envoyé par
@@ -137,9 +139,9 @@
   */
   function interestLink(offer, object, firstName) {
     var salutation = "Salut " + offer.lender + ", " + object +
-      " m'intéresse 🙂 On se cale quand pour la remise ?";
+      " m'intéresse 🙂 Il est toujours dispo ? Si oui, on se cale quand pour la remise ?";
     var message = (firstName ? salutation + " — " + firstName : salutation) +
-      "\n📦 via Akikoi · au lieu d’acheter, on prête · " + loanLink(object, firstName);
+      "\n📦 via Akikoi · " + loanLink(object, firstName);
     return "https://wa.me/" + offer.phone + "?text=" + encodeURIComponent(message);
   }
 
