@@ -203,8 +203,24 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
   padding-left: 18px;
   border-left: 2px solid var(--border);
 }
-/* La feuille est un signe secondaire : jamais dans le logo, jamais en tête. */
-.feuille { opacity: 0.8; }
+/*
+  La pousse, devant le slogan — et nulle part ailleurs.
+
+  Dessinée, et non l'emoji : 🌱 change de forme, de couleur et de taille selon
+  le système, et un signe qui n'est pas le même partout n'est pas un signe. Elle
+  prend la couleur d'accent, une seule, et se cale sur la ligne du texte plutôt
+  que sur une hauteur fixe — le titre fait 34 points sur téléphone et 44 sur
+  large, la pousse doit suivre.
+
+  Jamais dans le logo : le logo est un nom, pas une profession de foi.
+*/
+.pousse {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+  vertical-align: -0.12em;
+  margin-right: 10px;
+}
 .manifeste-pied { margin: 32px 0 0; }
 
 /* La raison d'être, en tête des pages qui portent un lien */
