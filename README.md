@@ -43,6 +43,11 @@ Pages 100 % statiques : ouvrir un fichier `.html` dans le navigateur, ou servir 
   avec la constante `APP_URL` de l'app.
 - Captures d'écran dans le hero.
 
+## Dette
+- Rendre `/o`, `/objets`, `/p` et `/app` bilingues comme `/e`, puis y bloquer la
+  traduction (`<html translate="no">`, `<meta name="google" content="notranslate">`).
+  D'ici là, elles gardent `lang="fr"` et la traduction automatique reste possible.
+
 ## Format du lien /e
 Page du lien d'emprunt : `https://akikoi.fr/e#<payload>` (`e/index.html`). L'app Akikoi
 encode le lien à l'identique.
@@ -91,6 +96,49 @@ Exemple (3 articles, deux dates) :
 Le fragment (`#…`) n'est jamais envoyé au serveur : tout est lu côté client via
 `location.hash`. Aucun tracking, aucun script tiers. L'Open Graph de la page est donc
 générique (aucune donnée du prêt).
+
+### La page /e, en deux langues
+- **Langue** : français dès qu'**une** des langues préférées du navigateur
+  (`navigator.languages`) commence par `fr`, anglais sinon — les textes, les badges et
+  les dates (`fr-FR` ; en anglais, le premier anglais préféré, à défaut `en-GB`). La
+  première langue seule ne suffit pas : un Chrome réglé `en-FR, fr-FR, fr…` donne
+  `navigator.language = "en-FR"` à qui lit le français.
+- **Pas de traduction automatique** : `<html translate="no">` et
+  `<meta name="google" content="notranslate">`, et le `lang` de `<html>` posé dans
+  `<head>`, avant tout rendu, sur la langue réellement affichée. Une traduction
+  par-dessus défigurait les libellés (« Lent on » → « Carême »). `/e` seulement :
+  `/o`, `/objets`, `/p` et `/app` n'existent qu'en français, et tant qu'elles ne sont
+  pas bilingues, la traduction du navigateur doit y rester possible (cf. « Dette »).
+- **Libellés anglais** écrits du côté de qui emprunte : « Return by », « Borrowed on »,
+  « Someone is lending you » — jamais « Lent » seul, qui se lit aussi « Carême ».
+- **Les balises Open Graph restent en français**, quelle que soit la langue : les
+  messageries lisent l'aperçu sans navigateur, donc sans `navigator.language`.
+- **iPhone et iPad** (iPadOS reconnu à l'écran tactile sous un nom de Mac) : ni lien
+  vers le Play Store ni liste de ce que fait l'app — « Bientôt sur iPhone. En attendant,
+  garde cette page. » La carte et la note restent.
+- **Le rappel** n'est promis que s'il peut avoir lieu : l'app n'en programme aucun sans
+  date de retour, ni pour un retour aujourd'hui ou passé ; la ligne se tait alors.
+- **Sans JavaScript**, la page le dit, en français et en anglais : rien ne peut lire le
+  fragment sans lui.
+- **Aperçu local** : `?lang=en` (ou `fr`) force la langue, `?ios=1` simule un iPhone. La
+  requête ne porte rien du prêt, qui reste dans le fragment.
+- **Le bouton** dit « Installer Akikoi », et en petit « sur Google Play », sans logo ni
+  badge : la marque de Google ne s'imite pas.
+
+### Pas de referrer Play (décision du 08/10/2026)
+Le bouton d'installation de `/e` pointe vers `https://akikoi.fr/app`, **sans**
+`referrer=e%3D<payload>`. Rien du prêt ne part chez Google : le fragment ne quitte
+jamais le téléphone, et une page qui promet cela ne l'envoie pas au Play Store par la
+porte d'à côté.
+
+Le parcours est donc « installer, puis **rouvrir ce lien** », le même sur Android et
+sur iPhone : l'App Link ouvre l'app, qui pose l'emprunt déjà rempli. La page le dit
+sous le bouton — « Après l'installation, rouvre ce lien : ton emprunt est déjà
+rempli. » — et ne promet pas plus : « Ton emprunt se note tout seul », pas « déjà
+noté ».
+
+La lecture du referrer côté app (`lib/referrer` dans l'app) reste inoffensive : sans
+`e=` dans le referrer, elle ne propose rien.
 
 ## Format du lien /o (objet proposé)
 Page d'un objet qu'on **propose** à ses contacts : `https://akikoi.fr/o#<payload>`
@@ -226,6 +274,11 @@ L'Open Graph est générique, `noindex`, comme `/e` et `/o`.
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiwqsgTCfDiXRyYW5nZXIgwrsgZGUgQ2FtdXMiLCJwIjoiTMOpYSJ9
 - Lot de 3 articles (Livre 1 et Livre 2 au 24/12/2026, Scie au 04/10/2026, prêtés par Marc) :
   https://akikoi.fr/e#eyJ2IjoxLCJvIjoiTGl2cmUgMSwgTGl2cmUgMiBldCBTY2llIiwiZCI6IjIwMjYtMTAtMDQiLCJwIjoiTWFyYyIsInQiOiIyMDI2LTA5LTE5IiwibCI6W3sibyI6IkxpdnJlIDEiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IkxpdnJlIDIiLCJkIjoiMjAyNi0xMi0yNCJ9LHsibyI6IlNjaWUiLCJkIjoiMjAyNi0xMC0wNCJ9XX0
+
+- Sans prénom (Tente 3 places, retour 09/10/2026) :
+  https://akikoi.fr/e#eyJ2IjoxLCJvIjoiVGVudGUgMyBwbGFjZXMiLCJkIjoiMjAyNi0xMC0wOSIsInQiOiIyMDI2LTEwLTAyIn0
+- En anglais, sur iPhone : ajouter `?lang=en` ou `?ios=1` avant le `#`
+  (`https://akikoi.fr/e?lang=en#…`).
 
 En local : `python -m http.server` à la racine, puis `http://localhost:8000/e/#<payload>`.
 

@@ -1,4 +1,35 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<!doctype html><html lang="fr" translate="no"><head><meta charset="utf-8">
+  <!--
+    La page choisit sa langue elle-même : une traduction automatique par-dessus
+    défigurait les libellés (« Lent on » devenu « Carême »). Le lang de <html> est
+    posé ici, avant tout rendu, sur la langue réellement affichée.
+  -->
+  <meta name="google" content="notranslate">
+  <script>
+  // Français dès qu'une des langues préférées du navigateur commence par « fr »
+  // (navigator.languages, pas seulement la première). Aperçu : ?lang=fr|en, ?ios=1.
+  // La requête ne porte rien du prêt — le prêt reste dans le fragment.
+  (function () {
+    var params = {};
+    location.search.replace(/^\?/, "").split("&").forEach(function (kv) {
+      var i = kv.indexOf("=");
+      if (kv) params[decodeURIComponent(i < 0 ? kv : kv.slice(0, i))] = i < 0 ? "" : decodeURIComponent(kv.slice(i + 1));
+    });
+    var langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""];
+    function first(prefix) {
+      for (var i = 0; i < langs.length; i++) if (String(langs[i]).toLowerCase().indexOf(prefix) === 0) return langs[i];
+      return null;
+    }
+    var fr = params.lang === "fr" || params.lang === "en" ? params.lang === "fr" : first("fr") !== null;
+    document.documentElement.lang = fr ? "fr" : "en";
+    // Les dates anglaises suivent l'anglais préféré du navigateur (US, GB…), sinon l'anglais britannique
+    window.AKIKOI_PAGE = { fr: fr, locale: fr ? "fr-FR" : (first("en") || "en-GB"), params: params };
+  })();
+  </script>
+  <!--
+    Balises d'aperçu en français, quelle que soit la langue du téléphone : les
+    messageries les lisent sans navigateur, donc sans navigator.language (cf. README).
+  -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Akikoi">
   <meta property="og:locale" content="fr_FR">
@@ -17,7 +48,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <!-- OG générique : les messageries ne reçoivent pas le fragment, donc aucune donnée du prêt ici -->
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Un objet t'a été prêté · Akikoi</title>
   <meta name="description" content="Retrouve le résumé de ton emprunt : l'objet, qui te l'a prêté et la date de retour convenue.">
   <meta name="robots" content="noindex">
@@ -25,62 +56,258 @@
   <link rel="icon" href="/assets/logo.png">
   <link rel="apple-touch-icon" href="/assets/logo.png">
   <link rel="stylesheet" href="/styles.css">
+  <!--
+    Le style de cette page reste ici : styles.css est partagé avec /o et /p, et
+    leurs classes partagées n'ont pas à bouger pour elle.
+
+    Contrastes (AA) : blanc sur le bandeau #0e7a5f 5,29 ; blanc sur le bouton
+    #047857 5,48 (l'accent #059669 ne fait que 3,77) ; #52525b sur la carte
+    crème 7,3 ; badges 4,9 à 5,9 ; icône #14181F sur le disque terracotta 8,92.
+  -->
+  <style>
+    [hidden] { display: none !important; }
+    body { background: #fff; }
+    /* styles.css donne aux sections du site vitrine un grand padding : pas ici */
+    .e-main section:not(.e-carte) { padding: 0; }
+    .e-main section h2 { text-align: left; }
+
+    .e-bandeau { background: #0e7a5f; color: #fff; padding: 18px 0 44px; }
+    .e-bandeau .container { max-width: 480px; display: flex; align-items: center; gap: 14px; }
+    .e-marque { display: flex; align-items: center; gap: 14px; color: #fff; text-decoration: none; min-width: 0; }
+    .e-marque:hover { color: #fff; }
+    .e-marque img { width: 56px; height: 56px; border-radius: 14px; display: block; flex: 0 0 auto; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+    .e-nom { display: block; font-size: 24px; font-weight: 800; line-height: 1.1; }
+    .e-slogan { display: block; margin-top: 2px; font-size: 15px; line-height: 1.35; }
+
+    .e-main { padding: 0 0 40px; }
+    .e-main .container { max-width: 480px; }
+    /* La carte remonte sur le bandeau : pas de vide entre les deux */
+    .e-carte {
+      position: relative;
+      margin-top: -28px;
+      background: #F8F9F1;
+      border: 1px solid #e3e6d8;
+      border-radius: 16px;
+      padding: 22px 20px 20px;
+      box-shadow: 0 2px 10px rgba(20, 24, 31, 0.08);
+    }
+    .e-disque {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: #F2A58B;
+      color: #14181F;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .e-disque svg { width: 28px; height: 28px; }
+    .e-surtitre { margin: 0 0 2px; font-size: 16px; font-weight: 600; color: #52525b; overflow-wrap: anywhere; }
+    .e-objet { margin: 0; font-size: 30px; line-height: 1.15; overflow-wrap: anywhere; }
+    .e-badge {
+      display: inline-block;
+      margin: 14px 0 16px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .e-badge-ok { background: #ecfdf5; color: #047857; }
+    .e-badge-soon { background: #fffbeb; color: #b45309; }
+    .e-badge-late { background: #fef2f2; color: #b91c1c; }
+    .e-badge-free { background: #ececea; color: #3f3f46; }
+    .e-dates { margin: 0; display: grid; gap: 10px; }
+    .e-dates dt { font-size: 13px; color: #52525b; }
+    .e-dates dd { margin: 0; font-weight: 600; font-size: 17px; }
+
+    /* Le lot : une ligne par article, dans le même habit que l'objet seul */
+    .e-articles { list-style: none; margin: 14px 0 16px; padding: 0; display: grid; gap: 12px; }
+    .e-article { display: grid; gap: 6px; padding-bottom: 12px; border-bottom: 1px solid #e3e6d8; }
+    .e-article:last-child { padding-bottom: 0; border-bottom: 0; }
+    .e-article-objet { font-weight: 700; font-size: 19px; line-height: 1.25; overflow-wrap: anywhere; }
+    .e-article .e-badge { justify-self: start; margin: 0; font-size: 15px; }
+    .e-article-date { font-size: 15px; color: #3f3f46; }
+
+    .e-app { margin: 22px 0 0; }
+    .e-app h2 { margin: 0 0 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #52525b; }
+    .e-benefices { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+    .e-benefices li { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; line-height: 1.4; }
+    .e-benefices svg { flex: 0 0 auto; width: 22px; height: 22px; color: #047857; margin-top: 1px; }
+
+    .e-action { margin-top: 22px; text-align: center; }
+    .e-installer {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: #047857;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+    .e-installer:hover, .e-installer:focus-visible { background: #065f46; color: #fff; }
+    .e-installer:focus-visible { outline: 3px solid #14181F; outline-offset: 2px; }
+    .e-installer-textes { display: grid; text-align: center; gap: 2px; }
+    .e-installer-sous { font-size: 13px; font-weight: 600; }
+    .e-apres { margin: 10px auto 0; max-width: 40ch; font-size: 15px; line-height: 1.4; color: #18181b; }
+    .e-garder {
+      margin-top: 10px;
+      padding: 8px;
+      border: 0;
+      background: none;
+      font: inherit;
+      font-size: 15px;
+      color: #52525b;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .e-garder:hover { color: #18181b; }
+    .e-garde { margin: 10px auto 0; max-width: 40ch; font-size: 15px; color: #52525b; }
+    .e-toi-aussi { margin: 14px 0 0; font-size: 15px; }
+    .e-toi-aussi a { color: #047857; }
+    .e-ios { margin: 22px 0 0; padding: 14px 16px; border-radius: 12px; background: #f4f4f5; text-align: center; font-size: 16px; }
+    .e-ios p { margin: 0; }
+    .e-ios .e-ios-astuce { margin-top: 6px; font-size: 14px; color: #52525b; }
+
+    .e-note { margin: 28px 0 0; font-size: 13px; line-height: 1.5; color: #52525b; text-align: center; }
+
+    /* États d'erreur et repli sans JavaScript : même carte, sans bouton */
+    .e-carte-vide h1, .e-carte-vide h2 { margin: 0 0 10px; font-size: 24px; line-height: 1.2; text-align: left; }
+    .e-carte-vide p { margin: 0 0 14px; color: #3f3f46; }
+    .e-carte-vide p:last-child { margin-bottom: 0; }
+    .e-carte-vide a { color: #047857; font-weight: 600; }
+    .e-carte-vide hr { border: 0; border-top: 1px solid #e3e6d8; margin: 16px 0; }
+
+    /* Téléphone : le bouton reste collé en bas de l'écran */
+    @media (max-width: 639px) {
+      /* Repli : le script règle ce retrait sur la hauteur réelle de la barre */
+      .e-avec-barre .e-main { padding-bottom: calc(130px + env(safe-area-inset-bottom)); }
+      .e-avec-barre .e-barre {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+        padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+        background: #fff;
+        box-shadow: 0 -2px 12px rgba(20, 24, 31, 0.12);
+      }
+      .e-avec-barre .e-installer { padding: 8px 14px; font-size: 16px; border-radius: 12px; }
+      .e-avec-barre .e-installer-sous { font-size: 12px; line-height: 1.15; }
+      .e-avec-barre .e-apres { margin: 6px auto 0; max-width: 46ch; font-size: 13px; line-height: 1.3; }
+    }
+    @media (max-width: 359px) {
+      .container { padding: 0 16px; }
+      .e-objet { font-size: 26px; }
+      .e-carte { padding: 18px 16px 16px; }
+    }
+  </style>
 </head>
 <body>
-  <header class="site-header">
+  <header class="e-bandeau">
     <div class="container">
-      <a class="brand" href="/">
-        <img src="/assets/logo.png" alt="" width="36" height="36">
-        Akikoi
+      <a class="e-marque" href="/" id="lien-accueil">
+        <img src="/assets/logo.png" alt="" width="56" height="56">
+        <span>
+          <span class="e-nom">Akikoi</span>
+          <span class="e-slogan" data-t="slogan">🌱 Au lieu d’acheter, on prête.</span>
+        </span>
       </a>
     </div>
   </header>
 
-  <main class="loan">
+  <main class="e-main">
     <div class="container">
-      <p class="site-eco">🌱 Au lieu d’acheter, on prête.</p>
+
+      <!-- Sans JavaScript : le fragment ne se lit pas, on le dit dans les deux langues -->
+      <noscript>
+        <section class="e-carte e-carte-vide">
+          <h1>Cette page a besoin de JavaScript</h1>
+          <p>C'est lui qui lit, sur ton téléphone, ce qui t'a été prêté : le lien ne passe jamais par un serveur. Active-le, ou ouvre le lien dans un autre navigateur.</p>
+          <hr>
+          <h2 lang="en">This page needs JavaScript</h2>
+          <p lang="en">It reads what you borrowed right on your phone: the link never goes through a server. Turn it on, or open the link in another browser.</p>
+        </section>
+      </noscript>
 
       <!-- État : prêt lisible -->
-      <section id="state-loan" class="loan-state" hidden>
-        <div class="loan-card">
-          <p class="loan-kicker">Ton emprunt</p>
-          <h1 id="loan-object" class="loan-object"></h1>
-          <p id="loan-lender" class="loan-lender"></p>
-          <p id="loan-badge" class="loan-badge"></p>
-          <!-- Lot (clé l) : une ligne par article, avec sa date et son badge -->
-          <ul id="loan-items" class="loan-items" hidden></ul>
-          <dl class="loan-dates">
-            <div id="loan-due-row">
-              <dt>Retour prévu</dt>
-              <dd id="loan-due"></dd>
+      <section id="etat-pret" hidden>
+        <div class="e-carte">
+          <div class="e-disque" aria-hidden="true">
+            <!-- Colis ouvert : l'icône de l'onglet « Mes emprunts » de l'app (Lucide PackageOpen, ISC) -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 22v-9"/><path d="M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z"/><path d="M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13"/><path d="M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z"/></svg>
+          </div>
+          <p id="surtitre" class="e-surtitre"></p>
+          <h1 id="objet" class="e-objet"></h1>
+          <p id="badge" class="e-badge"></p>
+          <!-- Lot (clé l) : une ligne par article, avec son badge et sa date -->
+          <ul id="articles" class="e-articles" hidden></ul>
+          <dl class="e-dates">
+            <div id="ligne-retour">
+              <dt data-t="retourPrevu">Retour prévu</dt>
+              <dd id="retour"></dd>
             </div>
-            <div id="loan-since-row" hidden>
-              <dt>Prêté le</dt>
-              <dd id="loan-since"></dd>
+            <div id="ligne-depuis" hidden>
+              <dt data-t="pretele">Prêté le</dt>
+              <dd id="depuis"></dd>
             </div>
           </dl>
-          <p class="loan-honest">Cette page affiche le prêt tel qu'il a été partagé — elle ne sait pas s'il a été rendu.</p>
         </div>
 
-        <div id="loan-cta" class="loan-cta">
-          <a id="loan-install" class="cta cta-live loan-cta-btn" href="https://akikoi.fr/app">Installe Akikoi : retrouve ton emprunt, et sois prévenu avant la date convenue</a>
-          <button type="button" id="loan-keep" class="loan-keep">ou garde simplement cette page</button>
-          <p id="loan-kept" class="loan-kept" hidden>Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris.</p>
+        <!-- Android et ordinateur : ce que l'app ajoute, et le bouton -->
+        <div id="bloc-app">
+          <section class="e-app" aria-labelledby="titre-app">
+            <h2 id="titre-app" data-t="avecApp">Avec l'app</h2>
+            <ul class="e-benefices">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+                <span data-t="dejaNote">Ton emprunt se note tout seul</span>
+              </li>
+              <li id="benefice-rappel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                <span id="rappel"></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                <span data-t="gratuit">Gratuit, sans compte, tout reste sur ton téléphone</span>
+              </li>
+            </ul>
+          </section>
+
+          <div class="e-action">
+            <div class="e-barre">
+              <a id="installer" class="e-installer" href="https://akikoi.fr/app">
+                <span class="e-installer-textes">
+                  <span data-t="installer">Installer Akikoi</span>
+                  <span class="e-installer-sous" data-t="surPlay">sur Google Play</span>
+                </span>
+              </a>
+              <!-- Pas de referrer : l'emprunt se note en rouvrant ce lien (cf. README) -->
+              <p class="e-apres" data-t="apres">Après l'installation, rouvre ce lien : ton emprunt est déjà rempli.</p>
+            </div>
+            <button type="button" id="garder" class="e-garder" data-t="garder">ou garde simplement cette page</button>
+            <p id="garde" class="e-garde" hidden data-t="garde">Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris.</p>
+            <p class="e-toi-aussi"><a id="toi-aussi" href="/" data-t="toiAussi">Toi aussi tu prêtes ? Note-le en 10 secondes.</a></p>
+          </div>
         </div>
+
+        <!-- iPhone et iPad : pas d'app à installer, donc rien à promettre -->
+        <div id="bloc-ios" class="e-ios" hidden>
+          <p data-t="ios">Bientôt sur iPhone. En attendant, garde cette page.</p>
+          <p class="e-ios-astuce" data-t="astuce">Astuce : ajoute-la à ton écran d'accueil depuis le bouton Partager.</p>
+        </div>
+
+        <p class="e-note" data-t="note">Cette page affiche le prêt tel qu'il a été partagé — elle ne sait pas s'il a été rendu.</p>
       </section>
 
       <!-- État : lien illisible (payload présent mais non décodable) -->
-      <section id="state-invalid" class="loan-state loan-empty" hidden>
-        <h1>Ce lien est illisible</h1>
-        <p>Il a peut-être été coupé ou modifié en route. Demande à la personne qui t'a prêté l'objet de te le renvoyer.</p>
-        <a href="/">Découvrir Akikoi</a>
+      <section id="etat-illisible" class="e-carte e-carte-vide" hidden>
+        <h1 data-t="illisibleTitre">Ce lien est illisible</h1>
+        <p data-t="illisibleTexte">Il a peut-être été coupé ou modifié en route. Demande à la personne qui t'a prêté l'objet de te le renvoyer.</p>
+        <p><a class="lien-decouvrir" href="/" data-t="decouvrir">Découvrir Akikoi</a></p>
       </section>
 
-      <!-- État : fragment absent (état par défaut sans JavaScript) -->
-      <section id="state-empty" class="loan-state loan-empty">
-        <h1>Ce lien est incomplet</h1>
-        <p>Il manque le résumé du prêt à la fin de l'adresse. Demande à la personne qui t'a prêté l'objet de te renvoyer le lien en entier.</p>
-        <a href="/">Découvrir Akikoi</a>
+      <!-- État : fragment absent -->
+      <section id="etat-incomplet" class="e-carte e-carte-vide" hidden>
+        <h1 data-t="incompletTitre">Ce lien est incomplet</h1>
+        <p data-t="incompletTexte">Il manque le résumé du prêt à la fin de l'adresse. Demande à la personne qui t'a prêté l'objet de te renvoyer le lien en entier.</p>
+        <p><a class="lien-decouvrir" href="/" data-t="decouvrir">Découvrir Akikoi</a></p>
       </section>
 
     </div>
@@ -96,6 +323,82 @@
     var MAX_ITEMS = 50;
 
     function $(id) { return document.getElementById(id); }
+
+    // Langue choisie dans <head>, avant tout rendu
+    var params = window.AKIKOI_PAGE.params;
+    var FR = window.AKIKOI_PAGE.fr;
+    var LOCALE = window.AKIKOI_PAGE.locale;
+
+    // iPadOS se présente comme un Mac : on le reconnaît à l'écran tactile
+    var IOS = params.ios === "1" ||
+      /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+      (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+    var T = FR ? {
+      slogan: "🌱 Au lieu d’acheter, on prête.",
+      retourPrevu: "Retour prévu",
+      pretele: "Prêté le",
+      avecApp: "Avec l'app",
+      dejaNote: "Ton emprunt se note tout seul",
+      gratuit: "Gratuit, sans compte, tout reste sur ton téléphone",
+      installer: "Installer Akikoi",
+      apres: "Après l'installation, rouvre ce lien : ton emprunt est déjà rempli.",
+      surPlay: "sur Google Play",
+      garder: "ou garde simplement cette page",
+      garde: "Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris.",
+      toiAussi: "Toi aussi tu prêtes ? Note-le en 10 secondes.",
+      ios: "Bientôt sur iPhone. En attendant, garde cette page.",
+      astuce: "Astuce : ajoute-la à ton écran d'accueil depuis le bouton Partager.",
+      note: "Cette page affiche le prêt tel qu'il a été partagé — elle ne sait pas s'il a été rendu.",
+      illisibleTitre: "Ce lien est illisible",
+      illisibleTexte: "Il a peut-être été coupé ou modifié en route. Demande à la personne qui t'a prêté l'objet de te le renvoyer.",
+      incompletTitre: "Ce lien est incomplet",
+      incompletTexte: "Il manque le résumé du prêt à la fin de l'adresse. Demande à la personne qui t'a prêté l'objet de te renvoyer le lien en entier.",
+      decouvrir: "Découvrir Akikoi",
+      accueil: "/",
+      titreIllisible: "Lien illisible · Akikoi",
+      titreIncomplet: "Ce lien est incomplet · Akikoi",
+      tePrete: function (p) { return p ? p + " te prête" : "On te prête"; },
+      lot: function (n) { return n + " objets"; },
+      rappelDate: function (d) { return "Un rappel avant le " + d; },
+      sansDate: "pas de date convenue",
+      libre: "Retour libre",
+      dans: function (n) { return "À rendre dans " + n + (n === 1 ? " jour" : " jours"); },
+      aujourdhui: "À rendre aujourd'hui",
+      retard: function (n) { return "En retard de " + n + (n === 1 ? " jour" : " jours"); }
+    } : {
+      slogan: "🌱 Lend, don't buy.",
+      retourPrevu: "Return by",
+      pretele: "Borrowed on",
+      avecApp: "With the app",
+      dejaNote: "Your borrowed item notes itself",
+      gratuit: "Free, no account, everything stays on your phone",
+      installer: "Install Akikoi",
+      apres: "After installing, open this link again: your item is already filled in.",
+      surPlay: "on Google Play",
+      garder: "or simply keep this page",
+      garde: "This link holds everything: keep the message, or bookmark this page.",
+      toiAussi: "Lending things too? Note it in 10 seconds.",
+      ios: "Coming soon to iPhone. Until then, keep this page.",
+      astuce: "Tip: add it to your Home Screen from the Share button.",
+      note: "This page shows what you borrowed, as it was shared — it can't tell whether it has been returned.",
+      illisibleTitre: "This link can't be read",
+      illisibleTexte: "It may have been cut off or altered on the way. Ask the person who lent you the item to send it again.",
+      incompletTitre: "This link is incomplete",
+      incompletTexte: "The end of the address is missing. Ask the person who lent you the item to send you the whole link.",
+      decouvrir: "Discover Akikoi",
+      accueil: "/en/",
+      titreIllisible: "Unreadable link · Akikoi",
+      titreIncomplet: "Incomplete link · Akikoi",
+      tePrete: function (p) { return p ? p + " is lending you" : "Someone is lending you"; },
+      lot: function (n) { return n + " items"; },
+      rappelDate: function (d) { return "A reminder before " + d; },
+      sansDate: "no return date agreed",
+      libre: "No return date",
+      dans: function (n) { return "Due in " + n + (n === 1 ? " day" : " days"); },
+      aujourdhui: "Due today",
+      retard: function (n) { return n + (n === 1 ? " day" : " days") + " overdue"; }
+    };
 
     // « AAAA-MM-JJ » -> { y, m, d } si la date existe réellement, sinon null
     function parseIsoDate(s) {
@@ -179,44 +482,55 @@
       return Math.round((target - today) / 86400000);
     }
 
+    function toDate(date) { return new Date(Date.UTC(date.y, date.m - 1, date.d)); }
+
+    // Le 1er du mois, en français : « mardi 1er décembre 2026 »
+    function premier(date, text) {
+      return FR && date.d === 1 ? text.replace(/(^|\s)1(\s)/, function (_, before, after) { return before + "1er" + after; }) : text;
+    }
+
+    // Retour : avec le jour (« mardi 20 octobre 2026 ») ; prêt : sans le jour
     function formatDate(date, withWeekday) {
       var opts = { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" };
       if (withWeekday) opts.weekday = "long";
-      var text = new Date(Date.UTC(date.y, date.m - 1, date.d)).toLocaleDateString("fr-FR", opts);
-      return date.d === 1 ? text.replace(/(^|\s)1(\s)/, function (_, before, after) { return before + "1er" + after; }) : text;
+      return premier(date, toDate(date).toLocaleDateString(LOCALE, opts));
+    }
+
+    // Date courte du rappel : « 20 octobre », l'année seulement si ce n'est pas celle-ci
+    function formatShort(date) {
+      var opts = { day: "numeric", month: "long", timeZone: "UTC" };
+      if (date.y !== new Date().getFullYear()) opts.year = "numeric";
+      return premier(date, toDate(date).toLocaleDateString(LOCALE, opts));
     }
 
     function badgeFor(due) {
-      if (!due) return { text: "Retour libre", tone: "free" };
+      if (!due) return { text: T.libre, tone: "free" };
       var n = daysFromToday(due);
-      if (n > 1) return { text: "À rendre dans " + n + " j", tone: "ok" };
-      if (n === 1) return { text: "À rendre demain", tone: "soon" };
-      if (n === 0) return { text: "À rendre aujourd'hui", tone: "soon" };
-      return { text: "En retard de " + (-n) + " j", tone: "late" };
+      if (n >= 1) return { text: T.dans(n), tone: n === 1 ? "soon" : "ok" };
+      if (n === 0) return { text: T.aujourdhui, tone: "soon" };
+      return { text: T.retard(-n), tone: "late" };
     }
 
-    // « 3 objets prêtés par Marc » : le résumé d'un lot, en tête
-    function lotSummary(loan) {
-      var n = loan.items.length;
-      return n + " objets prêtés" + (loan.lender ? " par " + loan.lender : "");
+    function setBadge(el, due) {
+      var badge = badgeFor(due);
+      el.textContent = badge.text;
+      el.className = "e-badge e-badge-" + badge.tone;
     }
 
     function renderItems(items) {
-      var list = $("loan-items");
+      var list = $("articles");
       while (list.firstChild) list.removeChild(list.firstChild);
       items.forEach(function (item) {
         var li = document.createElement("li");
-        li.className = "loan-item";
+        li.className = "e-article";
         var name = document.createElement("span");
-        name.className = "loan-item-object";
+        name.className = "e-article-objet";
         name.textContent = item.object;
-        var badge = badgeFor(item.due);
         var badgeEl = document.createElement("span");
-        badgeEl.className = "loan-badge loan-badge-" + badge.tone;
-        badgeEl.textContent = badge.text;
+        setBadge(badgeEl, item.due);
         var date = document.createElement("span");
-        date.className = "loan-item-date";
-        date.textContent = item.due ? formatDate(item.due, false) : "pas de date convenue";
+        date.className = "e-article-date";
+        date.textContent = item.due ? formatDate(item.due, true) : T.sansDate;
         li.appendChild(name);
         li.appendChild(badgeEl);
         li.appendChild(date);
@@ -225,64 +539,83 @@
     }
 
     function show(id) {
-      ["state-loan", "state-invalid", "state-empty"].forEach(function (s) {
+      ["etat-pret", "etat-illisible", "etat-incomplet"].forEach(function (s) {
         $(s).hidden = s !== id;
       });
+      // La barre collée en bas n'existe que là où il y a un bouton
+      document.body.classList.toggle("e-avec-barre", id === "etat-pret" && !IOS);
+      fitBar();
+    }
+
+    // Tout doit rester atteignable en défilant : le bas de page se retire
+    // exactement de la hauteur de la barre, quelle que soit la longueur des textes
+    function fitBar() {
+      var main = document.querySelector(".e-main");
+      var bar = document.querySelector(".e-barre");
+      var fixed = document.body.classList.contains("e-avec-barre") && getComputedStyle(bar).position === "fixed";
+      main.style.paddingBottom = fixed ? (bar.offsetHeight + 16) + "px" : "";
+    }
+
+    // Les textes fixes, dans la langue affichée
+    function translate() {
+      var nodes = document.querySelectorAll("[data-t]");
+      for (var i = 0; i < nodes.length; i++) nodes[i].textContent = T[nodes[i].getAttribute("data-t")];
+      $("lien-accueil").href = T.accueil;
+      $("toi-aussi").href = T.accueil;
+      var links = document.querySelectorAll(".lien-decouvrir");
+      for (var j = 0; j < links.length; j++) links[j].href = T.accueil;
+      $("bloc-app").hidden = IOS;
+      $("bloc-ios").hidden = !IOS;
     }
 
     function render() {
       var payload = location.hash.replace(/^#/, "");
       if (!payload) {
-        document.title = "Ce lien est incomplet · Akikoi";
-        show("state-empty");
+        document.title = T.titreIncomplet;
+        show("etat-incomplet");
         return;
       }
 
-      var loan = decodePayload(payload);
-      if (!loan) {
-        document.title = "Lien illisible · Akikoi";
-        show("state-invalid");
+      var pret = decodePayload(payload);
+      if (!pret) {
+        document.title = T.titreIllisible;
+        show("etat-illisible");
         return;
       }
 
       // Uniquement textContent : le contenu vient du lien, jamais interprété comme HTML
-      var lot = loan.items !== null;
-      $("loan-object").textContent = lot ? lotSummary(loan) : loan.object;
-      // « par {p} » plutôt que « prêté(e) par » : le genre de l'objet est inconnu.
-      // Pour un lot, le prêteur est déjà dans le résumé.
-      $("loan-lender").hidden = lot || !loan.lender;
-      $("loan-lender").textContent = !lot && loan.lender ? "par " + loan.lender : "";
+      var lot = pret.items !== null;
+      $("surtitre").textContent = T.tePrete(pret.lender);
+      $("objet").textContent = lot ? T.lot(pret.items.length) : pret.object;
 
-      // Lot : une ligne par article ; le badge et la date uniques laissent la place.
-      $("loan-items").hidden = !lot;
-      $("loan-badge").hidden = lot;
-      $("loan-due-row").hidden = lot;
-      if (lot) renderItems(loan.items);
+      // Lot : une ligne par article ; le badge et la date uniques laissent la place
+      $("articles").hidden = !lot;
+      $("badge").hidden = lot;
+      $("ligne-retour").hidden = lot;
+      if (lot) renderItems(pret.items);
+      setBadge($("badge"), pret.due);
+      $("retour").textContent = pret.due ? formatDate(pret.due, true) : T.sansDate;
 
-      $("loan-install").textContent = loan.due
-        ? "Installe Akikoi : retrouve ton emprunt, et sois prévenu avant la date convenue"
-        : "Installe Akikoi : retrouve ton emprunt";
+      $("ligne-depuis").hidden = !pret.since;
+      $("depuis").textContent = pret.since ? formatDate(pret.since, false) : "";
 
-      var badge = badgeFor(loan.due);
-      var badgeEl = $("loan-badge");
-      badgeEl.textContent = badge.text;
-      badgeEl.className = "loan-badge loan-badge-" + badge.tone;
+      // L'app ne programme aucun rappel sans date de retour, ni pour un retour
+      // aujourd'hui ou passé : la ligne se tait plutôt que de promettre
+      $("benefice-rappel").hidden = !pret.due || daysFromToday(pret.due) < 1;
+      $("rappel").textContent = pret.due ? T.rappelDate(formatShort(pret.due)) : "";
 
-      $("loan-due").textContent = loan.due ? formatDate(loan.due, true) : "pas de date convenue";
-
-      $("loan-since-row").hidden = !loan.since;
-      $("loan-since").textContent = loan.since ? formatDate(loan.since, false) : "";
-
-      document.title = (lot ? lotSummary(loan) : loan.object) + " · Akikoi";
-      show("state-loan");
+      document.title = (lot ? T.lot(pret.items.length) : pret.object) + " · Akikoi";
+      show("etat-pret");
     }
 
-    $("loan-keep").addEventListener("click", function () {
-      $("loan-keep").hidden = true;
-      $("loan-kept").hidden = false;
+    $("garder").addEventListener("click", function () {
+      $("garder").hidden = true;
+      $("garde").hidden = false;
     });
 
+    translate();
     window.addEventListener("hashchange", render);
+    window.addEventListener("resize", fitBar);
     render();
   })();
   </script>
