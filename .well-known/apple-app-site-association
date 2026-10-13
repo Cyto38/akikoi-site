@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["L78VD982A9.com.inspireetvous.akikoi"],
+        "components": [
+          { "/": "/e" },
+          { "/": "/e/*" },
+          { "/": "/o" },
+          { "/": "/o/*" },
+          { "/": "/objets" },
+          { "/": "/objets/*" },
+          { "/": "/p" },
+          { "/": "/p/*" }
+        ]
+      }
+    ]
+  }
+}

@@ -307,3 +307,11 @@ baseline. Le slogan **n’y est pas encore** : il doit s’écrire sous la basel
 D’ici là, les pages anglaises pointent vers la bannière existante : mieux vaut un
 aperçu sans slogan qu’un aperçu cassé. Les balises `og:title` et `og:description`,
 elles, disent déjà le slogan dans les deux langues.
+
+## Liens qui ouvrent l'app
+- `.well-known/assetlinks.json` — Android App Links (`com.cyriltosi.objetspretes`).
+- `.well-known/apple-app-site-association` et sa copie à la racine — Universal
+  Links iOS (`L78VD982A9.com.inspireetvous.akikoi`), pour `/e`, `/o`, `/objets`,
+  `/p`. Sans extension, JSON. `.nojekyll` est ce qui fait servir `.well-known`.
+  Apple lit le fichier par son CDN, avec jusqu'à 24 h de cache :
+  `https://app-site-association.cdn-apple.com/a/v1/akikoi.fr`.
