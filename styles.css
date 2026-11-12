@@ -141,6 +141,12 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 }
 .cta-live:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
 
+/* Badges officiels des stores (accueil, /app) : même hauteur, côte à côte */
+.stores { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.store-badge { display: block; line-height: 0; border-radius: 8px; }
+.store-badge img { display: block; width: auto; height: 48px; }
+.store-badge:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
 /* Page de redirection /app */
 .redirect { display: flex; align-items: center; min-height: 100vh; padding: 40px 0; text-align: center; }
 .redirect .redirect-logo { width: 88px; height: 88px; border-radius: 22px; display: block; margin: 0 auto 20px; }

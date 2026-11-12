@@ -4,11 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Redirection immédiate vers la fiche Google Play -->
-  <meta http-equiv="refresh" content="0;url=https://play.google.com/store/apps/details?id=com.cyriltosi.objetspretes">
-
   <title>Akikoi — suivez vos prêts d'objets</title>
-  <meta name="description" content="Akikoi — suivez vos prêts d'objets : qui a quoi, depuis quand, rappels au bon moment. Téléchargez l'application sur Google Play.">
+  <meta name="description" content="Akikoi — suivez vos prêts d'objets : qui a quoi, depuis quand, rappels au bon moment. Téléchargez l'application sur l'App Store ou Google Play.">
   <link rel="canonical" href="https://akikoi.fr/app/">
   <meta name="robots" content="noindex, follow">
 
@@ -34,14 +31,13 @@
   <link rel="stylesheet" href="../styles.css">
 
   <!--
-    TODO (app iOS) : quand la version iOS existera, cette page fera la détection
-    de plateforme — iOS -> App Store, Android -> Google Play, desktop/autres ->
-    le contenu de repli ci-dessous avec les deux boutons. Remplacer alors la
-    balise <meta http-equiv="refresh"> (inconditionnelle) par une redirection
-    uniquement en JavaScript, basée sur navigator.userAgent / userAgentData.
+    Redirection selon l'appareil, en JavaScript seulement : iPhone/iPad -> App Store,
+    Android -> Google Play. Ailleurs (ordinateur, robots), pas de redirection : la
+    page montre les deux badges.
   -->
+  <script src="../assets/stores.js"></script>
   <script>
-    location.replace("https://play.google.com/store/apps/details?id=com.cyriltosi.objetspretes");
+    if (window.AKIKOI_STORE.url) location.replace(window.AKIKOI_STORE.url);
   </script>
 </head>
 <body>
@@ -51,11 +47,11 @@
       <img class="redirect-logo" src="../assets/logo.png" alt="Akikoi" width="88" height="88">
       <h1>Akikoi — Prêtez sans oublier</h1>
       <p>Qui a quoi, depuis quand, rappels au bon moment. Vos données restent sur votre téléphone.</p>
-      <a class="cta cta-live" href="https://play.google.com/store/apps/details?id=com.cyriltosi.objetspretes">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3.5v17a1 1 0 0 0 1.5.87l14.5-8.5a1 1 0 0 0 0-1.74L4.5 2.63A1 1 0 0 0 3 3.5Z"/></svg>
-        Télécharger sur Google Play
-      </a>
-      <p class="redirect-note">Redirection en cours vers Google Play… · <a href="../">Retour à l'accueil</a></p>
+      <div class="stores">
+        <a class="store-badge" href="https://apps.apple.com/app/id6822337850"><img src="../assets/badges/app-store-fr.svg" alt="Télécharger dans l'App Store" width="152" height="48"></a>
+        <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.cyriltosi.objetspretes"><img src="../assets/badges/google-play-fr.svg" alt="Disponible sur Google Play" width="162" height="48"></a>
+      </div>
+      <p class="redirect-note"><a href="../">Retour à l'accueil</a></p>
     </div>
   </main>
 </body>

@@ -7,7 +7,7 @@
   <meta name="google" content="notranslate">
   <script>
   // Français dès qu'une des langues préférées du navigateur commence par « fr »
-  // (navigator.languages, pas seulement la première). Aperçu : ?lang=fr|en, ?ios=1.
+  // (navigator.languages, pas seulement la première). Aperçu : ?lang=fr|en, ?ios=1, ?android=1.
   // La requête ne porte rien du prêt — le prêt reste dans le fragment.
   (function () {
     var params = {};
@@ -26,6 +26,7 @@
     window.AKIKOI_PAGE = { fr: fr, locale: fr ? "fr-FR" : (first("en") || "en-GB"), params: params };
   })();
   </script>
+  <script src="/assets/stores.js"></script>
   <!--
     Balises d'aperçu en français, quelle que soit la langue du téléphone : les
     messageries les lisent sans navigateur, donc sans navigator.language (cf. README).
@@ -165,9 +166,6 @@
     .e-garde { margin: 10px auto 0; max-width: 40ch; font-size: 15px; color: #52525b; }
     .e-toi-aussi { margin: 14px 0 0; font-size: 15px; }
     .e-toi-aussi a { color: #047857; }
-    .e-ios { margin: 22px 0 0; padding: 14px 16px; border-radius: 12px; background: #f4f4f5; text-align: center; font-size: 16px; }
-    .e-ios p { margin: 0; }
-    .e-ios .e-ios-astuce { margin-top: 6px; font-size: 14px; color: #52525b; }
 
     .e-note { margin: 28px 0 0; font-size: 13px; line-height: 1.5; color: #52525b; text-align: center; }
 
@@ -250,7 +248,7 @@
           </dl>
         </div>
 
-        <!-- Android et ordinateur : ce que l'app ajoute, et le bouton -->
+        <!-- Ce que l'app ajoute, et le bouton vers le store de l'appareil -->
         <div id="bloc-app">
           <section class="e-app" aria-labelledby="titre-app">
             <h2 id="titre-app" data-t="avecApp">Avec l'app</h2>
@@ -275,7 +273,7 @@
               <a id="installer" class="e-installer" href="https://akikoi.fr/app">
                 <span class="e-installer-textes">
                   <span data-t="installer">Installer Akikoi</span>
-                  <span class="e-installer-sous" data-t="surPlay">sur Google Play</span>
+                  <span id="installer-sous" class="e-installer-sous" data-t="surStores">sur l'App Store et Google Play</span>
                 </span>
               </a>
               <!-- Pas de referrer : l'emprunt se note en rouvrant ce lien (cf. README) -->
@@ -285,12 +283,6 @@
             <p id="garde" class="e-garde" hidden data-t="garde">Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris.</p>
             <p class="e-toi-aussi"><a id="toi-aussi" href="/" data-t="toiAussi">Toi aussi tu prêtes ? Note-le en 10 secondes.</a></p>
           </div>
-        </div>
-
-        <!-- iPhone et iPad : pas d'app à installer, donc rien à promettre -->
-        <div id="bloc-ios" class="e-ios" hidden>
-          <p data-t="ios">Bientôt sur iPhone. En attendant, garde cette page.</p>
-          <p class="e-ios-astuce" data-t="astuce">Astuce : ajoute-la à ton écran d'accueil depuis le bouton Partager.</p>
         </div>
 
         <p class="e-note" data-t="note">Cette page affiche le prêt tel qu'il a été partagé — elle ne sait pas s'il a été rendu.</p>
@@ -329,10 +321,8 @@
     var FR = window.AKIKOI_PAGE.fr;
     var LOCALE = window.AKIKOI_PAGE.locale;
 
-    // iPadOS se présente comme un Mac : on le reconnaît à l'écran tactile
-    var IOS = params.ios === "1" ||
-      /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-      (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+    // iPhone/iPad -> App Store, Android -> Google Play, ailleurs -> akikoi.fr/app (cf. /assets/stores.js)
+    var STORE = window.AKIKOI_STORE;
 
     var T = FR ? {
       slogan: "🌱 Au lieu d’acheter, on prête.",
@@ -344,11 +334,11 @@
       installer: "Installer Akikoi",
       apres: "Après l'installation, rouvre ce lien : ton emprunt est déjà rempli.",
       surPlay: "sur Google Play",
+      surAppStore: "sur l'App Store",
+      surStores: "sur l'App Store et Google Play",
       garder: "ou garde simplement cette page",
       garde: "Ce lien contient tout le prêt : garde le message ou ajoute la page à tes favoris.",
       toiAussi: "Toi aussi tu prêtes ? Note-le en 10 secondes.",
-      ios: "Bientôt sur iPhone. En attendant, garde cette page.",
-      astuce: "Astuce : ajoute-la à ton écran d'accueil depuis le bouton Partager.",
       note: "Cette page affiche le prêt tel qu'il a été partagé — elle ne sait pas s'il a été rendu.",
       illisibleTitre: "Ce lien est illisible",
       illisibleTexte: "Il a peut-être été coupé ou modifié en route. Demande à la personne qui t'a prêté l'objet de te le renvoyer.",
@@ -376,11 +366,11 @@
       installer: "Install Akikoi",
       apres: "After installing, open this link again: your item is already filled in.",
       surPlay: "on Google Play",
+      surAppStore: "on the App Store",
+      surStores: "on the App Store and Google Play",
       garder: "or simply keep this page",
       garde: "This link holds everything: keep the message, or bookmark this page.",
       toiAussi: "Lending things too? Note it in 10 seconds.",
-      ios: "Coming soon to iPhone. Until then, keep this page.",
-      astuce: "Tip: add it to your Home Screen from the Share button.",
       note: "This page shows what you borrowed, as it was shared — it can't tell whether it has been returned.",
       illisibleTitre: "This link can't be read",
       illisibleTexte: "It may have been cut off or altered on the way. Ask the person who lent you the item to send it again.",
@@ -543,7 +533,7 @@
         $(s).hidden = s !== id;
       });
       // La barre collée en bas n'existe que là où il y a un bouton
-      document.body.classList.toggle("e-avec-barre", id === "etat-pret" && !IOS);
+      document.body.classList.toggle("e-avec-barre", id === "etat-pret");
       fitBar();
     }
 
@@ -558,14 +548,16 @@
 
     // Les textes fixes, dans la langue affichée
     function translate() {
+      // Le bouton va droit au store de l'appareil, et le dit
+      $("installer-sous").setAttribute("data-t",
+        STORE.platform === "ios" ? "surAppStore" : STORE.platform === "android" ? "surPlay" : "surStores");
+      if (STORE.url) $("installer").href = STORE.url;
       var nodes = document.querySelectorAll("[data-t]");
       for (var i = 0; i < nodes.length; i++) nodes[i].textContent = T[nodes[i].getAttribute("data-t")];
       $("lien-accueil").href = T.accueil;
       $("toi-aussi").href = T.accueil;
       var links = document.querySelectorAll(".lien-decouvrir");
       for (var j = 0; j < links.length; j++) links[j].href = T.accueil;
-      $("bloc-app").hidden = IOS;
-      $("bloc-ios").hidden = !IOS;
     }
 
     function render() {

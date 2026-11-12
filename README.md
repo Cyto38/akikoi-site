@@ -9,7 +9,9 @@ HTML/CSS statique, sans framework, hébergé sur **GitHub Pages**.
 - `en/index.html` — accueil EN
 - `confidentialite.html` — politique de confidentialité FR (URL Play Console)
 - `en/privacy.html` — privacy policy EN
-- `app/index.html` — redirection vers le store (`akikoi.fr/app`)
+- `app/index.html` — redirection vers le store de l'appareil (`akikoi.fr/app`) : App Store
+  sur iPhone/iPad, Google Play sur Android, les deux badges officiels ailleurs
+  (`assets/badges/`, SVG fournis par Apple et Google)
 - `e/index.html` — lien d'emprunt (`akikoi.fr/e#<payload>`), format documenté en tête du fichier
 - `o/index.html` — objet proposé en prêt (`akikoi.fr/o#<payload>`)
 
@@ -39,8 +41,6 @@ Pages 100 % statiques : ouvrir un fichier `.html` dans le navigateur, ou servir 
 (`python -m http.server`). Aucune build.
 
 ## Emplacements à compléter avant lancement
-- Lien Google Play (bouton actuellement « Bientôt disponible », désactivé) — à synchroniser
-  avec la constante `APP_URL` de l'app.
 - Captures d'écran dans le hero.
 
 ## Dette
@@ -113,21 +113,24 @@ générique (aucune donnée du prêt).
   « Someone is lending you » — jamais « Lent » seul, qui se lit aussi « Carême ».
 - **Les balises Open Graph restent en français**, quelle que soit la langue : les
   messageries lisent l'aperçu sans navigateur, donc sans `navigator.language`.
-- **iPhone et iPad** (iPadOS reconnu à l'écran tactile sous un nom de Mac) : ni lien
-  vers le Play Store ni liste de ce que fait l'app — « Bientôt sur iPhone. En attendant,
-  garde cette page. » La carte et la note restent.
+- **Le store de l'appareil** (`assets/stores.js`) : iPhone et iPad (iPadOS reconnu à
+  l'écran tactile sous un nom de Mac) → App Store, Android → Google Play, ailleurs →
+  `akikoi.fr/app`, qui montre les deux badges. Même logique pour `/app`, `/o`,
+  `/objets` et `/p`.
 - **Le rappel** n'est promis que s'il peut avoir lieu : l'app n'en programme aucun sans
   date de retour, ni pour un retour aujourd'hui ou passé ; la ligne se tait alors.
 - **Sans JavaScript**, la page le dit, en français et en anglais : rien ne peut lire le
   fragment sans lui.
-- **Aperçu local** : `?lang=en` (ou `fr`) force la langue, `?ios=1` simule un iPhone. La
-  requête ne porte rien du prêt, qui reste dans le fragment.
-- **Le bouton** dit « Installer Akikoi », et en petit « sur Google Play », sans logo ni
-  badge : la marque de Google ne s'imite pas.
+- **Aperçu local** : `?lang=en` (ou `fr`) force la langue, `?ios=1` simule un iPhone,
+  `?android=1` un Android. La requête ne porte rien du prêt, qui reste dans le fragment.
+- **Le bouton** dit « Installer Akikoi », et en petit « sur l'App Store », « sur Google
+  Play » ou, sur ordinateur, « sur l'App Store et Google Play », sans logo ni badge :
+  les marques d'Apple et de Google ne s'imitent pas (les badges officiels ne sont que
+  sur l'accueil et `/app`).
 
 ### Pas de referrer Play (décision du 08/10/2026)
-Le bouton d'installation de `/e` pointe vers `https://akikoi.fr/app`, **sans**
-`referrer=e%3D<payload>`. Rien du prêt ne part chez Google : le fragment ne quitte
+Le bouton d'installation de `/e` pointe vers la fiche du store (ou `https://akikoi.fr/app`),
+**sans** `referrer=e%3D<payload>`. Rien du prêt ne part chez Google : le fragment ne quitte
 jamais le téléphone, et une page qui promet cela ne l'envoie pas au Play Store par la
 porte d'à côté.
 
