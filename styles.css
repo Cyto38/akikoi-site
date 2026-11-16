@@ -278,3 +278,16 @@ section h2 { font-size: 24px; margin: 0 0 24px; text-align: center; }
 .loan-empty { text-align: center; padding-top: 24px; }
 .loan-empty h1 { font-size: 26px; line-height: 1.2; margin: 0 0 12px; }
 .loan-empty p { color: var(--muted); margin: 0 auto 20px; max-width: 40ch; }
+
+/* Espace presse /presse : fiche, citations, visuels à télécharger */
+.presse-fiche { list-style: none; margin: 18px 0 20px; padding: 0; display: grid; gap: 8px; }
+.presse-fiche li { padding-left: 0; }
+.presse-fiche strong { display: block; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.presse-stores { justify-content: flex-start; margin: 0 0 8px; }
+.presse-citation { margin: 16px 0; padding: 0 0 0 16px; border-left: 3px solid var(--accent); font-size: 18px; line-height: 1.5; }
+.presse-visuels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 20px 0 8px; }
+.presse-visuels figure { margin: 0; text-align: center; }
+.presse-visuels img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-alt); }
+.presse-visuels .presse-icone { width: 160px; margin: 0 auto; border-radius: 36px; }
+.presse-visuels figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
+@media (min-width: 640px) { .presse-visuels { grid-template-columns: repeat(4, 1fr); } }

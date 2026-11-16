@@ -14,6 +14,7 @@ HTML/CSS statique, sans framework, hébergé sur **GitHub Pages**.
   (`assets/badges/`, SVG fournis par Apple et Google)
 - `e/index.html` — lien d'emprunt (`akikoi.fr/e#<payload>`), format documenté en tête du fichier
 - `o/index.html` — objet proposé en prêt (`akikoi.fr/o#<payload>`)
+- `presse/index.html` — espace presse (`akikoi.fr/presse`) : pitch, créateur, visuels dans `assets/presse/`, contact
 
 ## Aperçus (Open Graph)
 Les pages partagées — `/o`, `/e`, `/app` — déclarent `assets/og-banner.png`,
